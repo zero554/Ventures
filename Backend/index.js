@@ -9,6 +9,7 @@ const config = require("config");
 const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
 const auth = require('./routes/auth');
+const search = require('./routes/search');
 
 // Middleware
 app.use(cors());
@@ -30,7 +31,7 @@ app.use(express.json());
 app.use('/businesses', businesses);
 app.use('/founders', founders);
 app.use('/auth', auth);
-
+app.use('./search', search);
 
 
 
