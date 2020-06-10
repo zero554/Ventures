@@ -11,11 +11,11 @@ router.get('/:value', auth, async (req, res) => {
         const business = await Business
             .find({ $text: { $search: req.params.value } })
             .select('-password');
+        if (!business) return res.status(400).send('No search results available for the provided search query');
+
+        res.send(business);
     } catch (exception) { return res.send("error"); }
 
-    if (!business) return res.status(400).send('No search results available for the provided search query');
-
-    res.send(business);
 
 });
 
