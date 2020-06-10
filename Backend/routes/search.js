@@ -7,11 +7,16 @@ const mongoose = require('mongoose');
 router.get('/:value', auth, async (req, res) => {
     if (!isNaN(req.params.value)) return res.status(400).send('No search results available for the provided search query');
 
-    const business = await Business
-        .find({ $text: { $search: req.params.value } })
-        .select('-password');
+    try {
+        const business = await Business
+            .find({ $text: { $search: req.params.value } })
+            .select('-password');
+    } catch (exception) { return res.send("error"); }
 
     if (!business) return res.status(400).send('No search results available for the provided search query');
+
     res.send(business);
 
 });
+
+module.exports = router;

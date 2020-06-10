@@ -20,10 +20,11 @@ if (!config.get("jwtPrivateKey")) {
     process.exit(1);
 }
 
+
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);
 
-mongoose.connect('mongodb+srv://Zolotov:segqAg-0sihhi-boqnav@mongodb01-avlll.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://zolotov:qufquf-Fenfi8-jupdex@blanktechproject01-ht8w9.mongodb.net/test?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB...'))
     .catch(err => console.error('Could not connect to MongoDB...'));
 
@@ -31,7 +32,7 @@ app.use(express.json());
 app.use('/businesses', businesses);
 app.use('/founders', founders);
 app.use('/auth', auth);
-app.use('./search', search);
+app.use('/search', search);
 
 
 
