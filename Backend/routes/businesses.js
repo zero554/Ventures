@@ -27,7 +27,6 @@ router.get('/allbusinesses', auth, async (req, res) => {
     const businesses = await Business
         .find({ _id: { $ne: req.business._id } });
 
-    console.log(req.business._id);
     res.send(businesses);
 });
 
