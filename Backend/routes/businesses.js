@@ -5,6 +5,7 @@ const { Founder, validateFounder } = require('../models/founder');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const auth = require("../middleware/auth");
+const Joi = require('joi');
 
 
 router.get('/profile', auth, async (req, res) => {
@@ -64,6 +65,24 @@ router.put('/', auth, async (req, res) => {
 
     res.send(_.pick(req.body, ['firstName', 'lastName', 'email']));
 
+
+});
+
+router.put('/rate', auth, async (req, res) => {
+    const { error } = Joi.validate(req.body, {
+        businessName: Joi.string().min(1),
+        rating: Joi.string().min(1)
+    });
+
+    if (error) return res.status(404).send(error.details[0].message);
+
+    try {
+        await Business
+            .updateOne({ businessName: req.body.businessName }, { rating: req.body.rating });
+
+    } catch (error) { res.send("There is no businesses with that business name"); }
+
+    res.send(_.pick(req.body, ['businessName', 'rating']));
 
 });
 

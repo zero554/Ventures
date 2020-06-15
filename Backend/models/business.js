@@ -13,7 +13,7 @@ const founderSchema = new mongoose.Schema({
     linkedIn: { type: String, required: false, minlength: 3 },
     facebook: { type: String, required: false, minlength: 3 },
     instagram: { type: String, required: false, minlength: 3 },
-    twitter: { type: String, required: false, minlength: 3 }
+    twitter: { type: String, required: false, minlength: 3 },
 });
 
 const businessSchema = new mongoose.Schema({
@@ -27,7 +27,7 @@ const businessSchema = new mongoose.Schema({
     password: { type: String, required: true, minlength: 5, maxlength: 1024 },
     businessMission: { type: String, minlength: 3, required: true },
     businessVision: { type: String, minlength: 3, required: true },
-
+    rating: { type: String, required: false }
 });
 
 businessSchema.methods.generateAuthToken = function () {
@@ -53,6 +53,7 @@ function validateBusiness(business) {
     });
 
 }
+
 
 module.exports.validateBusiness = validateBusiness;
 module.exports.Business = Business;
