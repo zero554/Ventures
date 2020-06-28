@@ -1,6 +1,8 @@
 const { Business } = require("../models/business");
+const { Chat } = require("../models/chat");
+const { Message } = require("../models/chat");
 
-("use strict");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 class QueryHandler {
   makeUserOnline(userId) {
@@ -49,28 +51,22 @@ class QueryHandler {
       };
     } else {
       queryProjection = {
-        online: true,
+        online: 1,
         _id: false,
         id: "$_id",
       };
     }
     return new Promise(async (resolve, reject) => {
       try {
-        Business.aggregate([
+        const client = await Business.findOne(
           {
-            $match: {
-              _id: userId,
-            },
-          },
-          {
-            $project: queryProjection,
-          },
-        ]).toArray((err, result) => {
-          if (err) {
-            reject(err);
+            _id: userId,
           }
-          socketId ? resolve(result[0]["socketId"]) : resolve(result);
-        });
+          // {
+          //   $project: queryProjection,
+          // },
+        );
+        socketId ? resolve(client["socketId"]) : resolve(result);
       } catch (error) {
         reject(error);
       }
@@ -107,29 +103,34 @@ class QueryHandler {
     });
   }
 
-  getChatList(socketId) {
+  getChatList(clientOneId) {
     return new Promise(async (resolve, reject) => {
       try {
-        Chat.aggregate([
-          {$unwind:"$clients"},
+        const chatList = await Chat.aggregate([
           {
             $match: {
-              "Business.socketId": socketId,
+              "clients._id": ObjectId(clientOneId),
+            },
+          },
+          { $unwind: "$clients" },
+          {
+            $match: {
+              "clients._id": { $ne: ObjectId(clientOneId) },
             },
           },
           {
             $project: {
-              businessName: true,
-              online: true,
+              businessId: "$clients._id",
+              title: "$clients.businessName",
+              imageAlt: "$clients.businessName",
+              online: "$clients.online",
+              _id: false,
               chatId: "$_id",
+              messages: { $slice: ["$messages", -1] },
             },
           },
-        ]).toArray((err, result) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(result);
-        });
+        ]).sort({ createdAt: 1 });
+        resolve(chatList);
       } catch (error) {
         reject(error);
       }
@@ -139,38 +140,41 @@ class QueryHandler {
   insertMessages(messagePacket) {
     return new Promise(async (resolve, reject) => {
       try {
-        const [DB, ObjectID] = await this.Mongodb.onConnect();
-        Message.insertOne(messagePacket, (err, result) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(result);
+        const message = await new Message({
+          ...messagePacket,
+          state: "DELIVERED",
         });
+
+        if (message) {
+          await Chat.updateOne(
+            { _id: messagePacket.chatId },
+            { $push: { messages: message } }
+          );
+        }
+
+        resolve(message);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  getMessages({chatId, businessId}) {
+  updateMessages(messagePacket) {
     return new Promise(async (resolve, reject) => {
+      // console.log(messagePacket);
       try {
-        Message
-          .aggregate([{
-            $match:{
-              "chatId": chatId, "receiver":
-            }
-          }
-          ])
-          .find(data)
-          .sort({ timestamp: 1 })
-          .toArray((err, result) => {
-            DB.close();
-            if (err) {
-              reject(err);
-            }
-            resolve(result);
-          });
+        const chat = await Chat.aggregate([
+          {
+            $match: {
+              _id: ObjectId(messagePacket.chatId),
+            },
+          },
+          { $unwind: "$messages" },
+          { $match: { "messages._id": { $eq: ObjectId(messagePacket._id) } } },
+          { $addFields: { "messages.state": messagePacket.state } },
+        ]);
+
+        resolve(chat[0].messages);
       } catch (error) {
         reject(error);
       }
@@ -185,15 +189,13 @@ class QueryHandler {
     };
     return new Promise(async (resolve, reject) => {
       try {
-        const [DB, ObjectID] = await this.Mongodb.onConnect();
         let condition = {};
         if (isSocketId) {
           condition.socketId = userID;
         } else {
           condition._id = ObjectID(userID);
         }
-        DB.collection("users").update(condition, data, (err, result) => {
-          DB.close();
+        Business.update(condition, data, (err, result) => {
           if (err) {
             reject(err);
           }

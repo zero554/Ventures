@@ -29,7 +29,7 @@ const businessSchema = new mongoose.Schema({
   businessVision: { type: String, minlength: 3, required: true },
   rating: { type: String, required: false },
   online: { type: String, required: false },
-  socketId: { type: String, required: false },
+  socketId: { type: String, required: false, unique: true },
 });
 
 businessSchema.methods.generateAuthToken = function () {
@@ -55,3 +55,4 @@ function validateBusiness(business) {
 
 module.exports.validateBusiness = validateBusiness;
 module.exports.Business = Business;
+module.exports.businessSchema = businessSchema;

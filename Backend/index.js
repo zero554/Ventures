@@ -9,11 +9,13 @@ const config = require("config");
 const socketio = require("socket.io");
 const http = require("http").Server(app);
 const socket = socketio(http);
+const socketEvents = require("./chats/socket");
 
 const businesses = require("./routes/businesses");
 const founders = require("./routes/founders");
 const auth = require("./routes/auth");
 const search = require("./routes/search");
+const chat = require("./routes/chats");
 
 // Middleware
 app.use(cors());
@@ -23,6 +25,8 @@ if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtprivatekey is not defined");
   process.exit(1);
 }
+
+new socketEvents(socket).socketConfig();
 
 mongoose.set("useCreateIndex", true);
 mongoose.set("useFindAndModify", false);
@@ -40,7 +44,7 @@ app.use("/businesses", businesses);
 app.use("/founders", founders);
 app.use("/auth", auth);
 app.use("/search", search);
-
+app.use("/chat", chat);
 // PORT
-const PORT = process.env.PORT || 3000;
-http.listen(3000, () => console.log(`Listening on port ${PORT}....`));
+const PORT = process.env.PORT || 3001;
+http.listen(PORT, () => console.log(`Listening on port ${PORT}....`));
