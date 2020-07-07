@@ -2,7 +2,7 @@ const { Business } = require("../models/business");
 const { Chat } = require("../models/chat");
 const { Message } = require("../models/chat");
 
-var ObjectId = require("mongoose").Types.ObjectId;
+const ObjectId = require("mongoose").Types.ObjectId;
 
 class QueryHandler {
   makeUserOnline(userId) {
@@ -138,6 +138,7 @@ class QueryHandler {
   }
 
   insertMessages(messagePacket) {
+    console.log(messagePacket);
     return new Promise(async (resolve, reject) => {
       try {
         const message = await new Message({
@@ -161,19 +162,23 @@ class QueryHandler {
 
   updateMessages(messagePacket) {
     return new Promise(async (resolve, reject) => {
-      // console.log(messagePacket);
       try {
+        await Chat.updateOne(
+          { _id: messagePacket.chatId, "messages._id": messagePacket },
+          {
+            $set: { "messages.$.state": messagePacket.state },
+          }
+        );
+
         const chat = await Chat.aggregate([
           {
-            $match: {
-              _id: ObjectId(messagePacket.chatId),
-            },
+            $match: { _id: ObjectId(messagePacket.chatId) },
           },
           { $unwind: "$messages" },
-          { $match: { "messages._id": { $eq: ObjectId(messagePacket._id) } } },
-          { $addFields: { "messages.state": messagePacket.state } },
+          { $match: { "messages._id": ObjectId(messagePacket._id) } },
         ]);
 
+        // console.log(chat[0].messages);
         resolve(chat[0].messages);
       } catch (error) {
         reject(error);

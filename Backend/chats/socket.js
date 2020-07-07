@@ -18,7 +18,7 @@ class Socket {
     this.io.on("connection", (socket) => {
       /* Get the user's Chat list	*/
       socket.on(`chat-list`, async (data) => {
-        if (data.userId == "") {
+        if (data.userId === "") {
           this.io.emit(`chat-list-response`, {
             error: true,
             message: "User not found",
@@ -68,15 +68,47 @@ class Socket {
                 userId: data.receiverId,
                 socketId: true,
               }),
+
               queryHandler.insertMessages(data),
             ]);
 
             this.io.to(toSocketId).emit(`add-message-response`, message);
+            this.io.to(socket.id).emit(`add-message-response`, message);
           } catch (error) {
             // console.log(error);
             this.io.to(socket.id).emit(`add-message-response`, {
               error: true,
               message: "couldn't send message",
+            });
+          }
+        }
+      });
+
+      socket.on(`set-typing`, async (data) => {
+        console.log(data);
+        if (data.receiverId === "") {
+          this.io.to(socket.id).emit(`add-message-response`, {
+            error: true,
+            message: "Receiver id is null",
+          });
+        } else {
+          try {
+            const [toSocketId] = await Promise.all([
+              queryHandler.getUserInfo({
+                userId: data.receiverId,
+                socketId: true,
+              }),
+            ]);
+
+            this.io.to(toSocketId).emit(`set-typing-response`, {
+              userId: data.senderId,
+              userAction: "typing",
+            });
+          } catch (error) {
+            // console.log(error);
+            this.io.to(socket.id).emit(`set-typing-response`, {
+              error: true,
+              message: "couldn't broadcast typing state",
             });
           }
         }
@@ -103,11 +135,8 @@ class Socket {
               queryHandler.updateMessages(data),
             ]);
 
-            // console.log(toSocketId);
-            // console.log(message);
-            this.io.to(toSocketId).emit(`upate-message-response`, message);
+            this.io.to(toSocketId).emit(`update-message-response`, message);
           } catch (error) {
-            console.log(error);
             this.io.to(socket.id).emit(`update-message-response`, {
               error: true,
               message: "couldn't set message state",
