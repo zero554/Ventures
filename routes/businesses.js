@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
     let business = await Business.findOne({ businessEmail: req.body.businessEmail });
     if (business) return res.status(400).send('Business already registered.')
 
-    business = new Business(_.pick(req.body, ['businessName', 'businessDescription', 'problemSolved', 'aboutBusiness', 'businessTargetAudience', 'businessEmail', 'password', 'businessMission', 'businessVision']));
+    business = new Business(_.pick(req.body, ['businessName', 'businessIndustry', 'yearFound', 'businessDescription', 'problemSolved', 'aboutBusiness', 'businessTargetAudience', 'businessEmail', 'password', 'businessMission', 'businessVision']));
 
     // const salt = await bcrypt.genSalt(10);
     // business.password = await bcrypt.hash(business.password, salt);
