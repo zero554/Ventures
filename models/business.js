@@ -18,8 +18,8 @@ const founderSchema = new mongoose.Schema({
 
 const businessSchema = new mongoose.Schema({
     businessName: { type: String, required: true, minlength: 3 },
-    businessIndustry: { type: String, required: true, minlength: 3 },
-    yearFound: { type: String, required: true, minlength: 3 },
+    businessIndustry: { type: String, minlength: 3, required: true },
+    yearFound: { type: String, minlength: 3, required: true },
     businessFounders: { type: [founderSchema], required: false },
     businessDescription: { type: String, minlength: 3, required: true },
     problemSolved: { type: String, minlength: 3, required: true },

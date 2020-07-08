@@ -7,14 +7,14 @@ const config = require("config");
 
 
 
+// Middleware
+app.use(cors());
+app.options('*', cors());
+
 const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
 const auth = require('./routes/auth');
 const search = require('./routes/search');
-
-// Middleware
-app.use(cors());
-app.options('*', cors());
 
 if (!config.get("jwtPrivateKey")) {
     console.error("FATAL ERROR: jwtprivatekey is not defined")
@@ -25,7 +25,7 @@ if (!config.get("jwtPrivateKey")) {
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);
 
-mongoose.connect('mongodb+srv://zolotov:wtNMT8D1XkKuXL4P@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://zolotov:ORXJ6rj1uv4F6JFO@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB...'))
     .catch(err => console.error('Could not connect to MongoDB...'));
 
@@ -39,4 +39,4 @@ app.use('/search', search);
 
 // PORT
 const PORT = process.env.PORT || 3000;
-app.listen(3000, () => console.log(`Listening on port ${PORT}....`));
+app.listen(PORT);

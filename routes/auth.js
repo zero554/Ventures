@@ -16,7 +16,8 @@ router.post('/', async (req, res) => {
     let business = await Business.findOne({ businessEmail: req.body.email });
     if (!business) return res.status(400).send('Invalid email or password.')
 
-    // const validPassword = await bcrypt.compare(req.body.password, business.password);
+
+    // const validPassword = req.body.password === business.password;
     if (!(req.body.password === business.password)) return res.status(400).send('Invalid email or password.');
 
     const token = business.generateAuthToken();
@@ -26,8 +27,10 @@ router.post('/', async (req, res) => {
 
 function validate(req) {
     return Joi.validate(req, {
-        email: Joi.string().min(5).required().email(),
-        password: Joi.string().min(8).max(255).required()
+        // email: Joi.string().min(5).required().email(),
+        // password: Joi.string().min(8).max(255).required()
+        email: Joi.string().min(5).email(),
+        password: Joi.string().min(8).max(255)
     });
 }
 
