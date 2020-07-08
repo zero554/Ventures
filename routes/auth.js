@@ -16,8 +16,9 @@ router.post('/', async (req, res) => {
     let business = await Business.findOne({ businessEmail: req.body.email });
     if (!business) return res.status(400).send('Invalid email or password.')
 
-    const validPassword = req.body.password === business.password;
-    if (!validPassword) return res.status(400).send('Invalid email or password.');
+
+    // const validPassword = req.body.password === business.password;
+    if (!req.body.password === business.password) return res.status(400).send('Invalid email or password.');
 
     const token = business.generateAuthToken();
     res.send(token);
