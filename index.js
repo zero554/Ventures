@@ -25,7 +25,7 @@ if (!config.get("jwtPrivateKey")) {
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);
 
-mongoose.connect('mongodb+srv://zolotov:r9TCSs05O5N3h49b@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://zolotov:wtNMT8D1XkKuXL4P@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB...'))
     .catch(err => console.error('Could not connect to MongoDB...'));
 

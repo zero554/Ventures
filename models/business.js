@@ -18,6 +18,8 @@ const founderSchema = new mongoose.Schema({
 
 const businessSchema = new mongoose.Schema({
     businessName: { type: String, required: true, minlength: 3 },
+    businessIndustry: { type: String, required: true, minlength: 3 },
+    yearFound: { type: String, required: true, minlength: 3 },
     businessFounders: { type: [founderSchema], required: false },
     businessDescription: { type: String, minlength: 3, required: true },
     problemSolved: { type: String, minlength: 3, required: true },
@@ -42,6 +44,8 @@ function validateBusiness(business) {
 
     return Joi.validate(business, {
         businessName: Joi.string().required().min(3),
+        businessIndustry: Joi.string().required().min(3),
+        yearFound: Joi.string().required().min(3),
         businessDescription: Joi.string().min(3).required(),
         problemSolved: Joi.string().min(3).required(),
         aboutBusiness: Joi.string().min(3).required(),
