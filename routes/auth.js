@@ -26,8 +26,10 @@ router.post('/', async (req, res) => {
 
 function validate(req) {
     return Joi.validate(req, {
-        email: Joi.string().min(5).required().email(),
-        password: Joi.string().min(8).max(255).required()
+        // email: Joi.string().min(5).required().email(),
+        // password: Joi.string().min(8).max(255).required()
+        email: Joi.string().min(5).email(),
+        password: Joi.string().min(8).max(255)
     });
 }
 

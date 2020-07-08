@@ -7,14 +7,14 @@ const config = require("config");
 
 
 
+// Middleware
+app.use(cors());
+app.options('*', cors());
+
 const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
 const auth = require('./routes/auth');
 const search = require('./routes/search');
-
-// Middleware
-app.use(cors());
-app.options('*', cors());
 
 if (!config.get("jwtPrivateKey")) {
     console.error("FATAL ERROR: jwtprivatekey is not defined")
