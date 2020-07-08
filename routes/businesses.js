@@ -3,7 +3,7 @@ const router = express.Router();
 const { Business, validateBusiness } = require('../models/business');
 const { Founder, validateFounder } = require('../models/founder');
 const _ = require('lodash');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const auth = require("../middleware/auth");
 const Joi = require('joi');
 
@@ -38,10 +38,10 @@ router.post('/', async (req, res) => {
     let business = await Business.findOne({ businessEmail: req.body.businessEmail });
     if (business) return res.status(400).send('Business already registered.')
 
-    business = new Business(_.pick(req.body, ['businessName', 'businessIndustry', 'yearFound', 'businessDescription', 'problemSolved', 'aboutBusiness', 'businessTargetAudience', 'businessEmail', 'password', 'businessMission', 'businessVision']));
+    business = new Business(_.pick(req.body, ['businessName', 'businessDescription', 'problemSolved', 'aboutBusiness', 'businessTargetAudience', 'businessEmail', 'password', 'businessMission', 'businessVision']));
 
-    // const salt = await bcrypt.genSalt(10);
-    // business.password = await bcrypt.hash(business.password, salt);
+    const salt = await bcrypt.genSalt(10);
+    business.password = await bcrypt.hash(business.password, salt);
     await business.save();
 
     const token = business.generateAuthToken();
