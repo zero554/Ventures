@@ -14,11 +14,11 @@ router.post('/', async (req, res) => {
 
     if (error) return res.status(404).send(error.details[0].message);
     let business = await Business.findOne({ businessEmail: req.body.email });
-    if (!business) return res.status(400).send('Invalid email.')
+    if (!business) return res.status(400).send('Invalid email or password.')
 
 
     // const validPassword = req.body.password === business.password;
-    if (!req.body.password === business.password) return res.status(400).send('Invalid email or password.');
+    if (req.body.password === business.password) return res.status(400).send('Invalid email or password.');
 
     const token = business.generateAuthToken();
     res.send(token);
