@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 
 
     // const validPassword = req.body.password === business.password;
-    if (req.body.password === business.password) return res.status(400).send('Invalid email or password.');
+    if (!(req.body.password === business.password)) return res.status(400).send('Invalid email or password.');
 
     const token = business.generateAuthToken();
     res.send(token);
