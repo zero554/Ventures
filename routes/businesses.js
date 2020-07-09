@@ -31,7 +31,7 @@ router.get('/allbusinesses', auth, async (req, res) => {
     res.send(businesses);
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', async (req, res) => {
     const { error } = validateBusiness(req.body);
 
     if (error) return res.status(404).send(error.details[0].message);
@@ -46,7 +46,6 @@ router.post('/', async (req, res, next) => {
 
     const token = business.generateAuthToken();
     res.header("x-auth-token", token).send(_.pick(req.body, ['businessName', 'businessDescription', 'businessEmail']));
-    next();
 });
 
 router.put('/', auth, async (req, res) => {

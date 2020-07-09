@@ -7,12 +7,16 @@ const config = require("config");
 
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "https://hosting-ventures-app.herokuapp.com"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Origin-Headers', '*');
+
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', 'PUT', 'POST', 'POST', 'DELETE', 'PATCH');
+        return res.status(200).json({});
+    }
 });
 // app.options('*', cors());
 
