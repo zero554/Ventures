@@ -31,7 +31,7 @@ router.get('/allbusinesses', auth, async (req, res) => {
     res.send(businesses);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, ) => {
     const { error } = validateBusiness(req.body);
 
     if (error) return res.status(404).send(error.details[0].message);
