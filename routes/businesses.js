@@ -32,9 +32,9 @@ router.get('/allbusinesses', auth, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { error } = validateBusiness(req.body);
+    // const { error } = validateBusiness(req.body);
 
-    if (error) return res.status(404).send(error.details[0].message);
+    // if (error) return res.status(404).send(error.details[0].message);
     let business = await Business.findOne({ businessEmail: req.body.businessEmail });
     if (business) return res.status(400).send('Business already registered.')
 
