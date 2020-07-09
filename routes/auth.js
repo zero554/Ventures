@@ -3,7 +3,7 @@ const router = express.Router();
 // const { Founder, validateFounder } = require('../models/founder');
 const { Business, validateBusiness } = require('../models/business');
 const _ = require('lodash');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const config = require("config");
@@ -16,10 +16,10 @@ router.post('/', async (req, res) => {
     let business = await Business.findOne({ businessEmail: req.body.email });
     if (!business) return res.status(400).send('Invalid email or password.')
 
-    const validPassword = await bcrypt.compare(req.body.password, business.password);
-    if (!validPassword) return res.status(400).send('Invalid email or password.');
+    // const validPassword = await bcrypt.compare(req.body.password, business.password);
+    // if (!validPassword) return res.status(400).send('Invalid email or password.');
 
-    // if (!(req.body.password === business.password)) return res.status(400).send('Invalid email or password.');
+    if (!(req.body.password === business.password)) return res.status(400).send('Invalid email or password.');
 
     const token = business.generateAuthToken();
     res.send(token);
