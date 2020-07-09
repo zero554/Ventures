@@ -7,7 +7,8 @@ const config = require("config");
 
 
 // Middleware
-// app.use(cors());
+app.use(cors());
+app.options('*', cors());
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -20,7 +21,6 @@ app.use((req, res, next) => {
 
     next();
 });
-// app.options('*', cors());
 
 const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
@@ -49,5 +49,5 @@ app.use('/search', search);
 
 
 // PORT
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT);
