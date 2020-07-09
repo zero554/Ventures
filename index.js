@@ -17,6 +17,8 @@ app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', 'PUT', 'POST', 'POST', 'DELETE', 'PATCH');
         return res.status(200).json({});
     }
+
+    next();
 });
 // app.options('*', cors());
 
