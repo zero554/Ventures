@@ -9,7 +9,6 @@ const config = require("config");
 
 // Middleware
 app.use(cors());
-app.options('*', cors());
 
 const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
@@ -38,5 +37,5 @@ app.use('/search', search);
 
 
 // PORT
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT);
