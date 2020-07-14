@@ -1,7 +1,12 @@
-// const express = require("express");
-// const router = express.Router();
-// const mongoose = require("mongoose");
+const express = require("express");
+const router = express.Router();
+const Content = require('../models/content');
+const mongoose = require("mongoose");
 
-// router.get('/videos', async (req, res) => {
+router.get('/', async (req, res) => {
+    const content = await Content
+        .find()
+        .sort({ Week: 1 })
+});
 
-// });
+module.exports = router;
