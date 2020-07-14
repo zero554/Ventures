@@ -26,7 +26,7 @@ const businesses = require('./routes/businesses');
 const founders = require('./routes/founders');
 const auth = require('./routes/auth');
 const search = require('./routes/search');
-const content = require('./routes/content');
+const allContent = require('./routes/AllContents');
 
 if (!config.get("jwtPrivateKey")) {
     console.error("FATAL ERROR: jwtprivatekey is not defined")
@@ -46,7 +46,7 @@ app.use('/businesses', businesses);
 app.use('/founders', founders);
 app.use('/auth', auth);
 app.use('/search', search);
-app.use('/content', content);
+app.use('/content', allContent);
 
 
 
