@@ -10,15 +10,9 @@ const config = require("config");
 app.use(cors());
 app.options('*', cors());
 
-app.use((req, res, next) => {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Origin-Headers', '*');
-
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Origin', 'PUT', 'POST', 'POST', 'DELETE', 'PATCH');
-        return res.status(200).json({});
-    }
-
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
 
