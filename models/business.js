@@ -29,6 +29,7 @@ const businessSchema = new mongoose.Schema({
     password: { type: String, required: true, minlength: 5, maxlength: 1024 },
     businessMission: { type: String, minlength: 3, required: true },
     businessVision: { type: String, minlength: 3, required: true },
+    week: { type: String, required: false },
     rating: { type: String, required: false }
 });
 

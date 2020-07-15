@@ -31,6 +31,15 @@ router.get('/allbusinesses', auth, async (req, res) => {
     res.send(businesses);
 });
 
+router.get('/currentWeek', auth, async (req, res) => {
+    const business = await Business
+        .find({ _id: req.business._id })
+        .select(['businessName', 'week'])
+        .select('-_id');
+
+    res.send(business);
+});
+
 router.post('/', async (req, res) => {
     const { error } = validateBusiness(req.body);
 
@@ -42,6 +51,7 @@ router.post('/', async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     business.password = await bcrypt.hash(business.password, salt);
+    business.week = "Week 1";
     await business.save();
 
     const token = business.generateAuthToken();
@@ -83,6 +93,22 @@ router.put('/rate', auth, async (req, res) => {
     } catch (error) { res.send("There is no businesses with that business name"); }
 
     res.send(_.pick(req.body, ['businessName', 'rating']));
+
+});
+
+router.put('/updateWeek', auth, async (req, res) => {
+    const { error } = Joi.validate(req.body, {
+        week: Joi.string().min(1)
+    });
+
+    if (error) return res.status(404).send(error.details[0].message);
+
+    try {
+        await Business
+            .updateOne({ _id: req.business._id }, { week: req.body.week });
+        res.send('Week updated');
+
+    } catch (error) { res.send("There is no businesses with that business name"); }
 
 });
 
