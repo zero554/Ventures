@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 const contentSchema = new mongoose.Schema({
-    Week: { type: String },
+    Week: { required: false },
     Focus: { type: String },
     Videos: { type: [String] },
     Notes: { type: String },
