@@ -112,6 +112,45 @@ router.put('/updateWeek', auth, async (req, res) => {
 
 });
 
+router.put('/update/:item', auth, async (req, res) => {
+    result = false;
+
+    const { error } = Joi.validate(req.body, {
+        value: Joi.string().min(1)
+    });
+
+    if (error) return res.status(404).send(error.details[0].message);
+
+    try {
+        if (req.params.item === "aboutBusiness") {
+            await Business
+                .updateOne({ _id: req.business._id }, { aboutBusiness: req.body.value });
+            result = true;
+        }
+        else if (req.params.item === "businessVision") {
+            await Business
+                .updateOne({ _id: req.business._id }, { businessVision: req.body.value });
+            result = true
+        }
+        else if (req.params.item === "businessMission") {
+            await Business
+                .updateOne({ _id: req.business._id }, { businessMission: req.body.value });
+            result = true;
+        }
+        else if (req.params.item === "businessDescription") {
+            await Business
+                .updateOne({ _id: req.business._id }, { businessDescription: req.body.value });
+            result = true;
+        }
+
+    } catch (error) { res.send("There is no businesses with that business name"); }
+
+    if (result) res.send(req.params.item + ' updated');
+    else res.status(404).send('Incorrect endpoint "item" => ' + req.params.item)
+
+});
+
+
 router.delete('/:id', async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send('Business with the given ID does not exist');
     const business = await Business.findByIdAndRemove(req.params.id);
