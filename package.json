@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mongoose": "^5.9.10",
+    "socket.io": "^2.3.0",
     "underscore": "^1.10.2"
   }
 }
