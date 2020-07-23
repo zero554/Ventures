@@ -26,15 +26,22 @@ router.put("/", async (req, res) => {
 
   try {
     // Check if a chat between the two clients exists
-    const sharedChat = await Chat.find(
-      { "clients._id": ObjectId(clientOneId) },
-      { "clients._id": ObjectId(clientTwoId) }
-    );
+    const sharedChat = await Chat.aggregate([
+      {
+        $match: { "clients._id": ObjectId(clientOneId) },
+      },
+      { $unwind: "$clients" },
+      {
+        $match: { "clients._id": ObjectId(clientTwoId) },
+      },
+    ]);
 
-    if (sharedChat) return res.send("Chat object exist");
+    if (sharedChat[0]) return res.send("Chat object exist");
     else await new Chat({ clients: [clientOne, clientTwo] }).save();
   } catch (error) {
+    console.log(error);
     res.send("Failed to initiate chat");
+    return;
   }
 
   res.send("Successfully initiated chat");
@@ -77,6 +84,7 @@ router.post("/messages", async (req, res) => {
           updatedAt: "$messages.updatedAt",
           senderId: "$messages.senderId",
           receiverId: "$messages.receiverId",
+          chatId: "$_id",
           files: 1,
           message: "$messages.message",
           state: "$messages.state",

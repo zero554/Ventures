@@ -13,19 +13,23 @@ const socketEvents = require("./chats/socket");
 
 // Middleware
 app.use(cors());
-app.options('*', cors());
+app.options("*", cors());
 
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
 });
 
-const businesses = require('./routes/businesses');
-const founders = require('./routes/founders');
-const auth = require('./routes/auth');
-const search = require('./routes/search');
-const allContent = require('./routes/AllContents');
+const businesses = require("./routes/businesses");
+const founders = require("./routes/founders");
+const auth = require("./routes/auth");
+const search = require("./routes/search");
+const allContent = require("./routes/AllContents");
+const chat = require("./routes/chats");
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtprivatekey is not defined");
@@ -37,19 +41,22 @@ new socketEvents(socket).socketConfig();
 mongoose.set("useCreateIndex", true);
 mongoose.set("useFindAndModify", false);
 
-mongoose.connect('mongodb://admin:chatadmin1@ds129706.mlab.com:29706/chats', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB...'))
-    .catch(err => console.error('Could not connect to MongoDB...'));
+mongoose
+  .connect(
+    "mongodb+srv://zolotov:XfWW3FpepYqQNKbL@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((err) => console.error("Could not connect to MongoDB..."));
 
 app.use(express.json());
-app.use('/businesses', businesses);
-app.use('/founders', founders);
-app.use('/auth', auth);
-app.use('/search', search);
-app.use('/content', allContent);
-
-
+app.use("/businesses", businesses);
+app.use("/founders", founders);
+app.use("/auth", auth);
+app.use("/search", search);
+app.use("/content", allContent);
+app.use("/chat", chat);
 
 // PORT
-const PORT = process.env.PORT || 3000;
-app.listen(PORT);
+const PORT = process.env.PORT || 3001;
+http.listen(PORT);

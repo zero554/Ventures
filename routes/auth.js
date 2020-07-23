@@ -35,11 +35,4 @@ function validate(req) {
   });
 }
 
-async function makeOnline(businessId) {
-  return await Business.updateOne(
-    { _id: ObjectId(businessId) },
-    { online: true }
-  );
-}
-
 module.exports = router;

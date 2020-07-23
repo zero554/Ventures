@@ -8,7 +8,7 @@ const founderSchema = new mongoose.Schema({
   lastName: { type: String, required: true, minlength: 3 },
   role: { type: String, required: true, minlength: 3 },
   aboutFounder: { type: String, required: true, minlength: 3 },
-  email: { type: String, required: true, minlength: 10, unique: true },
+  email: { type: String, required: true, minlength: 10, unique: false },
   password: { type: String, required: true, minlength: 5, maxlength: 1024 },
   linkedIn: { type: String, required: false, minlength: 3 },
   facebook: { type: String, required: false, minlength: 3 },
@@ -32,7 +32,7 @@ const businessSchema = new mongoose.Schema({
   week: { type: String, required: false },
   rating: { type: String, required: false },
   online: { type: String, required: false },
-  socketId: { type: String, required: false, unique: true },
+  socketId: { type: String, required: false, unique: false },
 });
 
 businessSchema.methods.generateAuthToken = function () {

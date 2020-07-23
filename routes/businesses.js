@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
   business.password = await bcrypt.hash(business.password, salt);
-  business.week = "Week 1";
+  business.week = "1";
   await business.save();
 
   const token = business.generateAuthToken();

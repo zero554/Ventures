@@ -85,7 +85,6 @@ class Socket {
       });
 
       socket.on(`set-typing`, async (data) => {
-        console.log(data);
         if (data.receiverId === "") {
           this.io.to(socket.id).emit(`add-message-response`, {
             error: true,
@@ -135,6 +134,7 @@ class Socket {
               queryHandler.updateMessages(data),
             ]);
 
+            console.log(message);
             this.io.to(toSocketId).emit(`update-message-response`, message);
           } catch (error) {
             this.io.to(socket.id).emit(`update-message-response`, {
@@ -193,6 +193,7 @@ class Socket {
             _id: socket.request._query["userId"],
           },
           {
+            online: "Y",
             socketId: socket.id,
           }
         );

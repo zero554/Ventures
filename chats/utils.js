@@ -138,7 +138,6 @@ class QueryHandler {
   }
 
   insertMessages(messagePacket) {
-    console.log(messagePacket);
     return new Promise(async (resolve, reject) => {
       try {
         const message = await new Message({
@@ -153,7 +152,7 @@ class QueryHandler {
           );
         }
 
-        resolve(message);
+        resolve({ ...message._doc, chatId: messagePacket.chatId });
       } catch (error) {
         reject(error);
       }
@@ -178,8 +177,7 @@ class QueryHandler {
           { $match: { "messages._id": ObjectId(messagePacket._id) } },
         ]);
 
-        // console.log(chat[0].messages);
-        resolve(chat[0].messages);
+        resolve({ ...chat[0].messages, chatId: messagePacket.chatId });
       } catch (error) {
         reject(error);
       }
