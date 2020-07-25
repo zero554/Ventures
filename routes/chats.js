@@ -11,40 +11,15 @@ var ObjectId = require("mongoose").Types.ObjectId;
 
 router.put("/", async (req, res) => {
   const { clientOneId, clientTwoId } = req.body;
-  const clientOne = await Business.findById(clientOneId);
-  const clientTwo = await Business.findById(clientTwoId);
 
-  // Check if clients exist
-  if (!clientOne)
-    return res
-      .status(404)
-      .send(`Business with key ${clientOneId} does not exist`);
-  else if (!clientTwo)
-    return res
-      .status(404)
-      .send(`Business with key ${clientTwoId} does not exist`);
-
+  let chat;
   try {
-    // Check if a chat between the two clients exists
-    const sharedChat = await Chat.aggregate([
-      {
-        $match: { "clients._id": ObjectId(clientOneId) },
-      },
-      { $unwind: "$clients" },
-      {
-        $match: { "clients._id": ObjectId(clientTwoId) },
-      },
-    ]);
-
-    if (sharedChat[0]) return res.send("Chat object exist");
-    else await new Chat({ clients: [clientOne, clientTwo] }).save();
+    chat = QueryHandler.createChat({ clientOneId, clientTwoId });
   } catch (error) {
-    console.log(error);
     res.send("Failed to initiate chat");
     return;
   }
-
-  res.send("Successfully initiated chat");
+  res.send(chat);
 });
 
 router.post("/", async (req, res) => {
@@ -85,7 +60,7 @@ router.post("/messages", async (req, res) => {
           senderId: "$messages.senderId",
           receiverId: "$messages.receiverId",
           chatId: "$_id",
-          files: 1,
+          files: "$messages.files",
           message: "$messages.message",
           state: "$messages.state",
           _id: "$messages._id",

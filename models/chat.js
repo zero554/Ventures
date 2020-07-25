@@ -7,6 +7,7 @@ let Schema = mongoose.Schema,
 
 const fileSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 3 },
+  caption: { type: String, required: false },
   url: { type: String, required: true },
 });
 
@@ -16,8 +17,8 @@ const messageSchema = new mongoose.Schema({
   senderId: { type: ObjectId, ref: "Business" },
   receiverId: { type: ObjectId, ref: "Business" },
   files: { type: [fileSchema], required: false },
-  state: { type: String, enum: ["SENT", "RECEIVED", "READ"], default: "SENT" },
-  message: { type: String, required: true },
+  state: { type: String, enum: ["SENT", "DELIVERED", "READ"], default: "SENT" },
+  message: { type: String, required: false },
   replyMessageId: { type: ObjectId, ref: "Message" },
 });
 

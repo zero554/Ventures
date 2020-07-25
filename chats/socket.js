@@ -75,10 +75,51 @@ class Socket {
             this.io.to(toSocketId).emit(`add-message-response`, message);
             this.io.to(socket.id).emit(`add-message-response`, message);
           } catch (error) {
-            // console.log(error);
             this.io.to(socket.id).emit(`add-message-response`, {
               error: true,
               message: "couldn't send message",
+            });
+          }
+        }
+      });
+
+      socket.on("add-chat", async (data) => {
+        if (data.clientOneId === "") {
+          this.io.to(socket.id).emit(`add-chat-response`, {
+            error: true,
+            message: "clientOne id is null",
+          });
+        } else if (data.clientTwoId === "") {
+          this.io.to(socket.id).emit(`add-chat-response`, {
+            error: true,
+            message: "clientTwo id is null",
+          });
+        } else if (data.message.text === "") {
+          this.io.to(socket.id).emit(`add-chat-response`, {
+            error: true,
+            message: "Initiation message id is null",
+          });
+        } else {
+          try {
+            const [toSocketId, chat] = await Promise.all([
+              queryHandler.getUserInfo({
+                userId: data.clientTwoId,
+                socketId: true,
+              }),
+              queryHandler.createChat(data),
+            ]);
+
+            this.io.to(socket.id).emit(`add-message-response`, {
+              ...chat.messages[0],
+              chatId: chat._id,
+            });
+
+            this.io.to(toSocketId).emit(`add-chat-response`, chat);
+          } catch (error) {
+            console.log(error);
+            this.io.to(socket.id).emit(`add-chat-response`, {
+              error: true,
+              message: "couldn't initiate chat",
             });
           }
         }
@@ -104,7 +145,6 @@ class Socket {
               userAction: "typing",
             });
           } catch (error) {
-            // console.log(error);
             this.io.to(socket.id).emit(`set-typing-response`, {
               error: true,
               message: "couldn't broadcast typing state",
@@ -134,7 +174,8 @@ class Socket {
               queryHandler.updateMessages(data),
             ]);
 
-            console.log(message);
+            this.io.to(socket.id).emit(`update-message-response`, message);
+
             this.io.to(toSocketId).emit(`update-message-response`, message);
           } catch (error) {
             this.io.to(socket.id).emit(`update-message-response`, {

@@ -6,5 +6,5 @@ const notificationSchema = mongoose.Schema({
   type: { type: String, required: true },
   message: { type: String, required: true },
   target: { type: User, required: true },
-  state: { type: String, enum: ["SENT", "RECEIVED", "READ"] },
+  state: { type: String, enum: ["SENT", "DELIVERED", "READ"] },
 });

@@ -137,6 +137,53 @@ class QueryHandler {
     });
   }
 
+  async createChat({ clientOneId, clientTwoId, chatId, message }) {
+    return new Promise(async (resolve, reject) => {
+      const clientOne = await Business.findById(clientOneId);
+      const clientTwo = await Business.findById(clientTwoId);
+
+      // Check if clients exist
+      if (!clientOne)
+        reject({ error: `Business with key ${clientOneId} does not exist` });
+      else if (!clientTwo)
+        reject({ error: `Business with key ${clientTwoId} does not exist` });
+
+      try {
+        // Check if a chat between the two clients exists
+        const sharedChat = await Chat.aggregate([
+          {
+            $match: { "clients._id": ObjectId(clientOneId) },
+          },
+          { $unwind: "$clients" },
+          {
+            $match: { "clients._id": ObjectId(clientTwoId) },
+          },
+        ]);
+
+        if (sharedChat[0]) reject({ error: "Chat object exist" });
+        else {
+          const chat = await new Chat({
+            _id: ObjectId(chatId),
+            clients: [clientOne, clientTwo],
+            messages: [
+              new Message({
+                _id: ObjectId(message._id),
+                senderId: clientOneId,
+                receiverId: clientTwoId,
+                message: message.text,
+                state: "DELIVERED",
+              }),
+            ],
+          }).save();
+          // res.json(chat);
+          resolve(chat);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   insertMessages(messagePacket) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -145,9 +192,11 @@ class QueryHandler {
           state: "DELIVERED",
         });
 
+        let chat;
+
         if (message) {
-          await Chat.updateOne(
-            { _id: messagePacket.chatId },
+          chat = await Chat.findByIdAndUpdate(
+            { _id: ObjectId(messagePacket.chatId) },
             { $push: { messages: message } }
           );
         }
