@@ -17,6 +17,32 @@ class Socket {
   socketEvents() {
     this.io.on("connection", (socket) => {
       /* Get the user's Chat list	*/
+
+      socket.on("notifications", async (data) => {
+        if (data.userId === "") {
+          this.io.emit(`notification-response`, {
+            error: true,
+            message: "User not found",
+          });
+        } else {
+          try {
+            const [response] = await Promise.all([
+              queryHandler.getNotifications(data),
+            ]);
+
+            this.io.to(socket.id).emit(`notification-response`, {
+              error: false,
+              notifications: response,
+            });
+          } catch (error) {
+            this.io.to(socket.id).emit(`notification-response`, {
+              error: true,
+              notifications: [],
+            });
+          }
+        }
+      });
+
       socket.on(`chat-list`, async (data) => {
         if (data.userId === "") {
           this.io.emit(`chat-list-response`, {
@@ -63,18 +89,26 @@ class Socket {
           });
         } else {
           try {
-            const [toSocketId, message] = await Promise.all([
+            const [toSocketId, message, notification] = await Promise.all([
               queryHandler.getUserInfo({
                 userId: data.receiverId,
                 socketId: true,
               }),
 
               queryHandler.insertMessages(data),
+              queryHandler.insertNotification({
+                userId: data.receiverId,
+                type: "MESSAGE",
+                message: "New message",
+                from: data.senderName,
+              }),
             ]);
 
             this.io.to(toSocketId).emit(`add-message-response`, message);
+            this.io.to(toSocketId).emit(`receive-notification`, notification);
             this.io.to(socket.id).emit(`add-message-response`, message);
           } catch (error) {
+            console.log(error);
             this.io.to(socket.id).emit(`add-message-response`, {
               error: true,
               message: "couldn't send message",
@@ -148,6 +182,28 @@ class Socket {
             this.io.to(socket.id).emit(`set-typing-response`, {
               error: true,
               message: "couldn't broadcast typing state",
+            });
+          }
+        }
+      });
+
+      socket.on("update-notification", async (data) => {
+        if (data.id === "") {
+          this.io.to(socket.id).emit("update-notification-response", {
+            error: true,
+            message: "Notification id is null",
+          });
+        } else {
+          try {
+            const [notification] = await Promise.all([
+              queryHandler.updateNotification(data),
+            ]);
+
+            console.log(notification);
+          } catch (error) {
+            this.io.to(socket.id).emit(`update-message-response`, {
+              error: true,
+              message: "couldn't update notification state",
             });
           }
         }

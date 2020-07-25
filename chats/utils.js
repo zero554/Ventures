@@ -1,8 +1,13 @@
 const { Business } = require("../models/business");
 const { Chat } = require("../models/chat");
-const { Message } = require("../models/chat");
-
+const { Message, File } = require("../models/chat");
+const { Notification } = require("../models/notification");
+const { Storage } = require("@google-cloud/storage");
 const ObjectId = require("mongoose").Types.ObjectId;
+
+const sharp = require("sharp");
+const { reject } = require("lodash");
+const { not } = require("joi");
 
 class QueryHandler {
   makeUserOnline(userId) {
@@ -103,6 +108,20 @@ class QueryHandler {
     });
   }
 
+  getNotifications({ userId }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const notificationList = await Notification.find({
+          target: userId,
+        });
+
+        resolve(notificationList);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   getChatList(clientOneId) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -162,6 +181,11 @@ class QueryHandler {
 
         if (sharedChat[0]) reject({ error: "Chat object exist" });
         else {
+          let fileObj;
+          if (message.files[0]) {
+            const [obj] = await Promise.all([this.uploadDoc(message)]);
+            fileObj = obj;
+          }
           const chat = await new Chat({
             _id: ObjectId(chatId),
             clients: [clientOne, clientTwo],
@@ -172,6 +196,7 @@ class QueryHandler {
                 receiverId: clientTwoId,
                 message: message.text,
                 state: "DELIVERED",
+                files: [fileObj],
               }),
             ],
           }).save();
@@ -184,24 +209,99 @@ class QueryHandler {
     });
   }
 
-  insertMessages(messagePacket) {
+  uploadDoc(messagePacket) {
+    return new Promise(async (resolve, reject) => {
+      const file = messagePacket.files[0];
+      let fileName;
+      if (file.type.includes("image")) fileName = `img-${Date.now()}.jpg`;
+      else fileName = file.originalName;
+
+      // Creates a client
+      const bucketName = process.env.BUCKET;
+      const GCStorage = new Storage();
+      const bucket = GCStorage.bucket("venture_bucket");
+
+      const blob = bucket.file(file.originalName.replace(/ /g, "_"));
+
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+      });
+
+      blobStream.on("finish", () => {
+        blob.move(fileName).then(async () => {
+          bucket.file(fileName).makePublic();
+
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+          resolve(
+            new File({
+              name: fileName,
+              caption: file.caption,
+              url: publicUrl,
+              type: file.type,
+            })
+          );
+        });
+      });
+
+      if (file.type.includes("image")) {
+        const fileBuffer = await sharp(file.file)
+          .jpeg({
+            options: {
+              quality: 85,
+              chromaSubsampling: "4:4:4",
+            },
+          })
+          .toBuffer();
+        blobStream.end(fileBuffer);
+      } else {
+        blobStream.end(file.file);
+      }
+    });
+  }
+
+  async insertMessages(messagePacket) {
+    let fileObj;
+
+    if (messagePacket.files[0]) {
+      const [obj] = await Promise.all([this.uploadDoc(messagePacket)]);
+      fileObj = obj;
+    }
+
     return new Promise(async (resolve, reject) => {
       try {
         const message = await new Message({
           ...messagePacket,
           state: "DELIVERED",
+          files: [fileObj],
         });
 
-        let chat;
-
         if (message) {
-          chat = await Chat.findByIdAndUpdate(
+          await Chat.findByIdAndUpdate(
             { _id: ObjectId(messagePacket.chatId) },
             { $push: { messages: message } }
           );
         }
 
         resolve({ ...message._doc, chatId: messagePacket.chatId });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  insertNotification({ type, message, userId, from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const notification = await new Notification({
+          type,
+          message,
+          target: userId,
+          from: from,
+          state: "DELIVERED",
+        }).save();
+        console.log("Notification", notification);
+        resolve(notification);
       } catch (error) {
         reject(error);
       }
@@ -227,6 +327,22 @@ class QueryHandler {
         ]);
 
         resolve({ ...chat[0].messages, chatId: messagePacket.chatId });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  updateNotification({ id }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const notification = await Notification.updateOne(
+          { _id: id },
+          { state: "READ" }
+        );
+
+        console.log(notification);
+        resolve(notification);
       } catch (error) {
         reject(error);
       }

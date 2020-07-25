@@ -1,9 +1,10 @@
 const express = require("express");
-const fileUpload = require("express-fileupload");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const config = require("config");
+const multer = require("multer");
+const dotenv = require("dotenv");
 
 // Socket.io setup
 const socketio = require("socket.io");
@@ -11,9 +12,21 @@ const http = require("http").Server(app);
 const socket = socketio(http);
 const socketEvents = require("./chats/socket");
 
+/**
+ * Load environment variables from .env file, where API keys and passwords are configured.
+ */
+dotenv.load({ path: ".env" });
+
 // Middleware
-app.use(cors());
-app.options("*", cors());
+// app.use(cors());
+// app.options("*", cors());
+
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+);
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -23,6 +36,17 @@ app.use(function (req, res, next) {
   );
   next();
 });
+
+const multerMid = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    // no larger than 5mb.
+    fileSize: 5 * 1024 * 1024,
+  },
+});
+
+app.disable("x-powered-by");
+app.use(multerMid.single("file"));
 
 const businesses = require("./routes/businesses");
 const founders = require("./routes/founders");

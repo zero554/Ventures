@@ -9,6 +9,7 @@ const fileSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 3 },
   caption: { type: String, required: false },
   url: { type: String, required: true },
+  type: { type: String, enum: ["image", "file"] },
 });
 
 const messageSchema = new mongoose.Schema({
