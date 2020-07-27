@@ -8,7 +8,6 @@ const notificationSchema = mongoose.Schema({
   type: { type: String, required: true, enum: ["MESSAGE", "RATING"] },
   message: { type: String, required: true },
   target: { type: ObjectId, required: true },
-  from: { type: String, required: true },
   state: { type: String, enum: ["SENT", "DELIVERED", "READ"] },
 });
 

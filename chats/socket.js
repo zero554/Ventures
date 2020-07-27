@@ -8,6 +8,7 @@
 const path = require("path");
 const { Business } = require("../models/business");
 const queryHandler = require("./utils");
+const Joi = require("joi");
 
 class Socket {
   constructor(socket) {
@@ -40,6 +41,50 @@ class Socket {
               notifications: [],
             });
           }
+        }
+      });
+
+      socket.on("send-notification", async (data) => {
+        const { type } = data;
+        let additionalFields = {};
+        if (type === "RATING") {
+          additionalFields = {
+            rating: Joi.string().min(1),
+          };
+        }
+
+        const { error, value } = Joi.validate(data, {
+          type: Joi.string().required(),
+          senderName: Joi.string().required(),
+          receiverId: Joi.string().required(),
+          ...additionalFields,
+        });
+
+        if (error) {
+          this.io.to(socket.id).emit(`send-notification-response`, {
+            error: true,
+            message: error.details[0].message,
+          });
+          return;
+        }
+
+        try {
+          const [toSocketId, notification] = await Promise.all([
+            queryHandler.getUserInfo({
+              userId: data.receiverId,
+              socketId: true,
+            }),
+            queryHandler.insertNotification(value),
+          ]);
+
+          this.io
+            .to(toSocketId)
+            .emit("send-notification-response", notification);
+        } catch (error) {
+          this.io.to(socket.id).emit("send-notification-response", {
+            error: true,
+            message: "Coundn't send notification",
+          });
         }
       });
 
@@ -97,15 +142,14 @@ class Socket {
 
               queryHandler.insertMessages(data),
               queryHandler.insertNotification({
-                userId: data.receiverId,
+                receiverId: data.receiverId,
                 type: "MESSAGE",
-                message: "New message",
-                from: data.senderName,
+                senderName: data.senderName,
               }),
             ]);
 
             this.io.to(toSocketId).emit(`add-message-response`, message);
-            this.io.to(toSocketId).emit(`receive-notification`, notification);
+            this.io.to(toSocketId).emit(`notification-response`, notification);
             this.io.to(socket.id).emit(`add-message-response`, message);
           } catch (error) {
             console.log(error);
@@ -195,13 +239,9 @@ class Socket {
           });
         } else {
           try {
-            const [notification] = await Promise.all([
-              queryHandler.updateNotification(data),
-            ]);
-
-            console.log(notification);
+            await Promise.all([queryHandler.updateNotification(data)]);
           } catch (error) {
-            this.io.to(socket.id).emit(`update-message-response`, {
+            this.io.to(socket.id).emit(`update-notification-response`, {
               error: true,
               message: "couldn't update notification state",
             });

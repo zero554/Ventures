@@ -7,7 +7,6 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 const sharp = require("sharp");
 const { reject } = require("lodash");
-const { not } = require("joi");
 
 class QueryHandler {
   makeUserOnline(userId) {
@@ -115,8 +114,18 @@ class QueryHandler {
           target: userId,
         });
 
-        resolve(notificationList);
+        const notificationCount = await Notification.aggregate([
+          {
+            $match: { target: ObjectId(userId), state: "DELIVERED" },
+          },
+          {
+            $count: "unread",
+          },
+        ]);
+
+        resolve({ list: notificationList, unreadCount: notificationCount });
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
@@ -290,19 +299,23 @@ class QueryHandler {
     });
   }
 
-  insertNotification({ type, message, userId, from }) {
+  insertNotification({ type, receiverId, senderName, rating }) {
+    console.log("hya");
     return new Promise(async (resolve, reject) => {
       try {
         const notification = await new Notification({
           type,
-          message,
-          target: userId,
-          from: from,
+          message:
+            type === "MESSAGE"
+              ? `${senderName} sent you a message.`
+              : `${senderName} gave you a ${rating} rating.`,
+          target: receiverId,
           state: "DELIVERED",
         }).save();
         console.log("Notification", notification);
         resolve(notification);
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
