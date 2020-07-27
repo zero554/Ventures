@@ -26,7 +26,19 @@ const messageSchema = new mongoose.Schema({
 const chatSchema = new mongoose.Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   updatedAt: { type: Date, required: false, default: Date.now },
-  clients: { type: [businessSchema], required: true },
+  clients: {
+    type: [
+      businessSchema.add({
+        businessEmail: {
+          type: String,
+          required: true,
+          minlength: 3,
+          unique: false,
+        },
+      }),
+    ],
+    required: true,
+  },
   messages: { type: [messageSchema], required: false },
 });
 
