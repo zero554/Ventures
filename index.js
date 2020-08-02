@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const config = require("config");
 const multer = require("multer");
+const path = require("path");
 const dotenv = require("dotenv");
 
 // Socket.io setup
@@ -80,6 +81,13 @@ app.use("/auth", auth);
 app.use("/search", search);
 app.use("/content", allContent);
 app.use("/chat", chat);
+
+// Serve any static files
+app.use(express.static(path.join(__dirname, "build")));
+// Handle React routing, return all requests to React app
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 // PORT
 const PORT = process.env.PORT || 8001;
