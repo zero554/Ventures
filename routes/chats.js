@@ -53,6 +53,7 @@ router.post("/messages", async (req, res) => {
         },
       },
       { $unwind: "$messages" },
+
       {
         $project: {
           createdAt: "$messages.createdAt",
@@ -66,7 +67,10 @@ router.post("/messages", async (req, res) => {
           _id: "$messages._id",
         },
       },
-    ]).sort({ createdAt: 1 });
+      { $sort: { createdAt: -1 } },
+      { $skip: 10 * req.body.offset },
+      { $limit: 10 },
+    ]);
   } catch (error) {
     res.status(400).send("Failed to fetch messages");
   }

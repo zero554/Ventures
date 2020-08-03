@@ -159,7 +159,7 @@ class Socket {
               this.io
                 .to(toSocketId)
                 .emit(`notification-response`, notification);
-              this.io.to(socket.id).emit(`add-message-response`, message);
+              this.io.to(socket.id).emit(`update-message-response`, message);
             } catch (error) {
               console.log(error);
               this.io.to(socket.id).emit(`add-message-response`, {
@@ -196,8 +196,10 @@ class Socket {
                 queryHandler.createChat(data),
               ]);
 
-              this.io.to(socket.id).emit(`add-message-response`, {
-                ...chat.messages[0],
+              const message = chat.toJSON().messages[0];
+
+              this.io.to(socket.id).emit(`update-message-response`, {
+                ...message,
                 chatId: chat._id,
               });
 
