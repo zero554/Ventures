@@ -14,6 +14,7 @@ const founderSchema = new mongoose.Schema({
   facebook: { type: String, required: false, minlength: 3 },
   instagram: { type: String, required: false, minlength: 3 },
   twitter: { type: String, required: false, minlength: 3 },
+  avatarUrl: { type: String, required: false },
 });
 
 const businessSchema = new mongoose.Schema({
@@ -33,6 +34,7 @@ const businessSchema = new mongoose.Schema({
   rating: { type: String, required: false },
   online: { type: String, required: false },
   socketId: { type: String, required: false, unique: false },
+  avatarUrl: { type: String, required: false },
 });
 
 businessSchema.methods.generateAuthToken = function () {

@@ -149,6 +149,7 @@ class QueryHandler {
           {
             $project: {
               businessId: "$clients._id",
+              avatarUrl: "$clients.avartarUrl",
               title: "$clients.businessName",
               imageAlt: "$clients.businessName",
               online: "$clients.online",
@@ -219,6 +220,7 @@ class QueryHandler {
   }
 
   uploadDoc(messagePacket) {
+    console.log(messagePacket.files[0]);
     return new Promise(async (resolve, reject) => {
       const file = messagePacket.files[0];
       let fileName;
@@ -254,7 +256,7 @@ class QueryHandler {
       });
 
       if (file.type.includes("image")) {
-        const fileBuffer = await sharp(file.file)
+        const fileBuffer = await sharp(file.file || file.buffer)
           .jpeg({
             options: {
               quality: 85,
@@ -264,7 +266,7 @@ class QueryHandler {
           .toBuffer();
         blobStream.end(fileBuffer);
       } else {
-        blobStream.end(file.file);
+        blobStream.end(file.file || file.buffer);
       }
     });
   }

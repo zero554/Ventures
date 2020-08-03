@@ -6,6 +6,7 @@ const _ = require("lodash");
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
 const Joi = require("joi");
+const queryHandler = require("../chats/utils");
 
 router.get("/profile", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id }).select(
@@ -36,16 +37,33 @@ router.get("/currentWeek", auth, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { error } = validateBusiness(req.body);
+  const { error, value } = validateBusiness(JSON.parse(req.body.data));
 
   if (error) return res.status(404).send(error.details[0].message);
   let business = await Business.findOne({
-    businessEmail: req.body.businessEmail,
+    businessEmail: value.businessEmail,
   });
   if (business) return res.status(400).send("Business already registered.");
 
+  let fileObj;
+  if (req.file) {
+    const [obj] = await Promise.all([
+      queryHandler.uploadDoc({
+        files: [
+          {
+            ...req.file,
+            type: req.file.mimetype,
+            originalName: req.file.originalname,
+          },
+        ],
+      }),
+    ]);
+
+    fileObj = obj;
+  }
+
   business = new Business(
-    _.pick(req.body, [
+    _.pick(value, [
       "businessName",
       "businessIndustry",
       "yearFound",
@@ -63,25 +81,48 @@ router.post("/", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   business.password = await bcrypt.hash(business.password, salt);
   business.week = "1";
+  business.avatarUrl = fileObj.url;
   await business.save();
 
   const token = business.generateAuthToken();
   res
     .header("x-auth-token", token)
     .send(
-      _.pick(req.body, ["businessName", "businessDescription", "businessEmail"])
+      _.pick(value, [
+        "businessName",
+        "businessDescription",
+        "businessEmail",
+        "avartarUrl",
+      ])
     );
 });
 
 router.put("/", auth, async (req, res) => {
-  const { error } = validateFounder(req.body);
+  const { error, value } = validateFounder(JSON.parse(req.body.data));
 
   if (error) return res.status(404).send(error.details[0].message);
-  let founder = await Founder.findOne({ email: req.body.email });
+  let founder = await Founder.findOne({ email: value.email });
   if (founder) return res.status(400).send("Founder is already registered.");
 
+  let fileObj;
+  if (req.file) {
+    const [obj] = await Promise.all([
+      queryHandler.uploadDoc({
+        files: [
+          {
+            ...req.file,
+            type: req.file.mimetype,
+            originalName: req.file.originalname,
+          },
+        ],
+      }),
+    ]);
+
+    fileObj = obj;
+  }
+
   founder = new Founder(
-    _.pick(req.body, [
+    _.pick(value, [
       "firstName",
       "lastName",
       "role",
@@ -91,8 +132,11 @@ router.put("/", auth, async (req, res) => {
       "facebook",
       "instagram",
       "twitter",
+      "avartarUrl",
     ])
   );
+
+  founder.avatarUrl = fileObj.url;
 
   await Business.updateOne(
     { _id: req.business._id },
@@ -101,7 +145,7 @@ router.put("/", auth, async (req, res) => {
 
   await founder.save();
 
-  res.send(_.pick(req.body, ["firstName", "lastName", "email"]));
+  res.send(_.pick(value, ["firstName", "lastName", "email", "avartarUrl"]));
 });
 
 router.put("/rate", auth, async (req, res) => {
