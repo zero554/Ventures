@@ -69,8 +69,6 @@ class Socket {
           });
 
           if (error) {
-            console.log(error);
-            console.log(data);
             this.io.to(socket.id).emit(`send-notification-response`, {
               error: true,
               message: error.details[0].message,
@@ -88,7 +86,6 @@ class Socket {
               queryHandler.insertNotification(value),
             ]);
 
-            console.log(notification);
             this.io
               .to(toSocketId)
               .emit("send-notification-response", notification);
@@ -160,7 +157,6 @@ class Socket {
                   senderAvatarUrl: data.senderAvatarUrl,
                 }),
               ]);
-              console.log(data);
 
               this.io.to(toSocketId).emit(`add-message-response`, message);
               this.io
@@ -168,7 +164,6 @@ class Socket {
                 .emit(`notification-response`, notification);
               this.io.to(socket.id).emit(`update-message-response`, message);
             } catch (error) {
-              console.log(error);
               this.io.to(socket.id).emit(`add-message-response`, {
                 error: true,
                 message: "couldn't send message",
@@ -212,7 +207,6 @@ class Socket {
 
               this.io.to(toSocketId).emit(`add-chat-response`, chat);
             } catch (error) {
-              console.log(error);
               this.io.to(socket.id).emit(`add-chat-response`, {
                 error: true,
                 message: "couldn't initiate chat",

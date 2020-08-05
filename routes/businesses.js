@@ -157,15 +157,32 @@ router.put("/rate", auth, async (req, res) => {
   if (error) return res.status(404).send(error.details[0].message);
 
   try {
+    let business = await Business.findOne({
+      businessName: req.body.businessName,
+    });
+
+    const value = business.rating;
+
+    var averageOld = parseFloat(value);
+    const size = business.numRatings + 1;
+
     await Business.updateOne(
       { businessName: req.body.businessName },
-      { rating: req.body.rating }
+      { numRatings: size }
     );
+
+    const averageNew =
+      averageOld + (parseInt(req.body.rating) - averageOld) / size;
+
+    await Business.updateOne(
+      { businessName: req.body.businessName },
+      { rating: averageNew }
+    );
+
+    res.send("Rating updated.");
   } catch (error) {
     res.send("There is no businesses with that business name");
   }
-
-  res.send(_.pick(req.body, ["businessName", "rating"]));
 });
 
 router.put("/updateWeek", auth, async (req, res) => {

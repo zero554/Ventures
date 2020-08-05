@@ -34,6 +34,7 @@ const businessSchema = new mongoose.Schema({
   online: { type: String, required: false },
   socketId: { type: String, required: false, unique: false },
   avatarUrl: { type: String, required: false },
+  numRatings: { type: Number, required: true, default: 0 },
 });
 
 businessSchema.methods.generateAuthToken = function () {
