@@ -190,12 +190,18 @@ class Socket {
             });
           } else {
             try {
-              const [toSocketId, chat] = await Promise.all([
+              const [toSocketId, chat, notification] = await Promise.all([
                 queryHandler.getUserInfo({
                   userId: data.clientTwoId,
                   socketId: true,
                 }),
                 queryHandler.createChat(data),
+                queryHandler.insertNotification({
+                  receiverId: data.clientTwoId,
+                  type: "MESSAGE",
+                  senderName: data.message.senderName,
+                  senderAvatarUrl: data.message.senderAvatarUrl,
+                }),
               ]);
 
               const message = chat.toJSON().messages[0];
@@ -206,6 +212,9 @@ class Socket {
               });
 
               this.io.to(toSocketId).emit(`add-chat-response`, chat);
+              this.io
+                .to(toSocketId)
+                .emit(`notification-response`, notification);
             } catch (error) {
               this.io.to(socket.id).emit(`add-chat-response`, {
                 error: true,
