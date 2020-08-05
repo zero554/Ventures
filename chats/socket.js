@@ -64,10 +64,13 @@ class Socket {
             type: Joi.string().required(),
             senderName: Joi.string().required(),
             receiverId: Joi.string().required(),
+            senderAvatarUrl: Joi.string().optional(),
             ...additionalFields,
           });
 
           if (error) {
+            console.log(error);
+            console.log(data);
             this.io.to(socket.id).emit(`send-notification-response`, {
               error: true,
               message: error.details[0].message,
@@ -75,6 +78,7 @@ class Socket {
             return;
           }
 
+          console.log("value", value);
           try {
             const [toSocketId, notification] = await Promise.all([
               queryHandler.getUserInfo({
@@ -84,6 +88,7 @@ class Socket {
               queryHandler.insertNotification(value),
             ]);
 
+            console.log(notification);
             this.io
               .to(toSocketId)
               .emit("send-notification-response", notification);
@@ -152,8 +157,10 @@ class Socket {
                   receiverId: data.receiverId,
                   type: "MESSAGE",
                   senderName: data.senderName,
+                  senderAvatarUrl: data.senderAvatarUrl,
                 }),
               ]);
+              console.log(data);
 
               this.io.to(toSocketId).emit(`add-message-response`, message);
               this.io

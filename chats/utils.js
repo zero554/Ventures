@@ -301,18 +301,23 @@ class QueryHandler {
     });
   }
 
-  insertNotification({ type, receiverId, senderName, rating }) {
-    console.log("hya");
+  insertNotification({
+    type,
+    receiverId,
+    senderName,
+    rating,
+    senderAvatarUrl,
+  }) {
+    console.log(senderAvatarUrl);
     return new Promise(async (resolve, reject) => {
       try {
         const notification = await new Notification({
           type,
-          message:
-            type === "MESSAGE"
-              ? `${senderName} sent you a message.`
-              : `${senderName} gave you a ${rating} rating.`,
+          message: type === "MESSAGE" ? `New message.` : `${rating} rating.`,
           target: receiverId,
           state: "DELIVERED",
+          from: senderName,
+          avatarUrl: senderAvatarUrl,
         }).save();
         console.log("Notification", notification);
         resolve(notification);

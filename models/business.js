@@ -9,7 +9,6 @@ const founderSchema = new mongoose.Schema({
   role: { type: String, required: true, minlength: 3 },
   aboutFounder: { type: String, required: true, minlength: 3 },
   email: { type: String, required: true, minlength: 10, unique: false },
-  password: { type: String, required: true, minlength: 5, maxlength: 1024 },
   linkedIn: { type: String, required: false, minlength: 3 },
   facebook: { type: String, required: false, minlength: 3 },
   instagram: { type: String, required: false, minlength: 3 },
