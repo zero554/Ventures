@@ -30,7 +30,7 @@ const businessSchema = new mongoose.Schema({
   businessMission: { type: String, minlength: 3, required: true },
   businessVision: { type: String, minlength: 3, required: true },
   week: { type: String, required: false },
-  rating: { type: String, required: false, default: 5 },
+  rating: { type: String, required: false, default: 0 },
   online: { type: String, required: false },
   socketId: { type: String, required: false, unique: false },
   avatarUrl: { type: String, required: false },
