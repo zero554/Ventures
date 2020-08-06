@@ -57,6 +57,7 @@ class Socket {
           if (type === "RATING") {
             additionalFields = {
               rating: Joi.string().min(1),
+              overallRating: Joi.number().required(),
             };
           }
 
@@ -69,6 +70,7 @@ class Socket {
           });
 
           if (error) {
+            console.log(error);
             this.io.to(socket.id).emit(`send-notification-response`, {
               error: true,
               message: error.details[0].message,
@@ -76,7 +78,6 @@ class Socket {
             return;
           }
 
-          console.log("value", value);
           try {
             const [toSocketId, notification] = await Promise.all([
               queryHandler.getUserInfo({
@@ -161,7 +162,7 @@ class Socket {
               this.io.to(toSocketId).emit(`add-message-response`, message);
               this.io
                 .to(toSocketId)
-                .emit(`notification-response`, notification);
+                .emit(`send-notification-response`, notification);
               this.io.to(socket.id).emit(`update-message-response`, message);
             } catch (error) {
               this.io.to(socket.id).emit(`add-message-response`, {
@@ -214,7 +215,7 @@ class Socket {
               this.io.to(toSocketId).emit(`add-chat-response`, chat);
               this.io
                 .to(toSocketId)
-                .emit(`notification-response`, notification);
+                .emit(`send-notification-response`, notification);
             } catch (error) {
               this.io.to(socket.id).emit(`add-chat-response`, {
                 error: true,
@@ -252,19 +253,19 @@ class Socket {
           }
         });
 
-        socket.on("update-notification", async (data) => {
-          if (data.id === "") {
-            this.io.to(socket.id).emit("update-notification-response", {
+        socket.on("delete-notifications", async (data) => {
+          if (data.target === "") {
+            this.io.to(socket.id).emit("delete-notifications-response", {
               error: true,
-              message: "Notification id is null",
+              message: "Notification target is null",
             });
           } else {
             try {
-              await Promise.all([queryHandler.updateNotification(data)]);
+              await Promise.all([queryHandler.deleteNotifications(data)]);
             } catch (error) {
-              this.io.to(socket.id).emit(`update-notification-response`, {
+              this.io.to(socket.id).emit(`delete-notifications-response`, {
                 error: true,
-                message: "couldn't update notification state",
+                message: "couldn't delete notifications",
               });
             }
           }

@@ -179,7 +179,7 @@ router.put("/rate", auth, async (req, res) => {
       { rating: averageNew }
     );
 
-    res.send("Rating updated.");
+    res.json({ rating: averageNew });
   } catch (error) {
     res.send("There is no businesses with that business name");
   }

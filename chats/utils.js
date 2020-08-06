@@ -112,7 +112,8 @@ class QueryHandler {
       try {
         const notificationList = await Notification.find({
           target: userId,
-        });
+          state: "DELIVERED",
+        }).sort({ createdAt: -1 });
 
         const notificationCount = await Notification.aggregate([
           {
@@ -149,7 +150,7 @@ class QueryHandler {
           {
             $project: {
               businessId: "$clients._id",
-              avatarUrl: "$clients.avartarUrl",
+              avatarUrl: "$clients.avatarUrl",
               title: "$clients.businessName",
               imageAlt: "$clients.businessName",
               online: "$clients.online",
@@ -220,7 +221,6 @@ class QueryHandler {
   }
 
   uploadDoc(messagePacket) {
-    console.log(messagePacket.files[0]);
     return new Promise(async (resolve, reject) => {
       const file = messagePacket.files[0];
       let fileName;
@@ -307,8 +307,8 @@ class QueryHandler {
     senderName,
     rating,
     senderAvatarUrl,
+    overallRating,
   }) {
-    console.log(senderAvatarUrl);
     return new Promise(async (resolve, reject) => {
       try {
         const notification = await new Notification({
@@ -319,8 +319,8 @@ class QueryHandler {
           from: senderName,
           avatarUrl: senderAvatarUrl,
         }).save();
-        console.log("Notification", notification);
-        resolve(notification);
+
+        resolve({ ...notification.toJSON(), overallRating });
       } catch (error) {
         console.log(error);
         reject(error);
@@ -353,16 +353,11 @@ class QueryHandler {
     });
   }
 
-  updateNotification({ id }) {
+  deleteNotifications({ target }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const notification = await Notification.updateOne(
-          { _id: id },
-          { state: "READ" }
-        );
-
-        console.log(notification);
-        resolve(notification);
+        const notifications = await Notification.deleteMany({ target });
+        resolve(notifications);
       } catch (error) {
         reject(error);
       }
