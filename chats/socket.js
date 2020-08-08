@@ -70,7 +70,6 @@ class Socket {
           });
 
           if (error) {
-            console.log(error);
             this.io.to(socket.id).emit(`send-notification-response`, {
               error: true,
               message: error.details[0].message,

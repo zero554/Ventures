@@ -37,7 +37,8 @@ router.get("/currentWeek", auth, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { error, value } = validateBusiness(JSON.parse(req.body.data));
+  const { data } = req.body;
+  const { error, value } = validateBusiness(JSON.parse(data));
 
   if (error) return res.status(404).send(error.details[0].message);
   let business = await Business.findOne({

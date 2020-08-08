@@ -126,7 +126,6 @@ class QueryHandler {
 
         resolve({ list: notificationList, unreadCount: notificationCount });
       } catch (error) {
-        console.log(error);
         reject(error);
       }
     });
@@ -322,7 +321,6 @@ class QueryHandler {
 
         resolve({ ...notification.toJSON(), overallRating });
       } catch (error) {
-        console.log(error);
         reject(error);
       }
     });
