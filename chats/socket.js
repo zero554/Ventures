@@ -106,7 +106,10 @@ class Socket {
           } else {
             try {
               const [chatlistResponse] = await Promise.all([
-                queryHandler.getChatList(data.userId),
+                queryHandler.getChatList({
+                  userId: data.userId,
+                  searchQuery: data.searchQuery,
+                }),
               ]);
 
               this.io.to(socket.id).emit(`chat-list-response`, {
@@ -151,6 +154,7 @@ class Socket {
 
                 queryHandler.insertMessages(data),
                 queryHandler.insertNotification({
+                  messageId: data._id,
                   receiverId: data.receiverId,
                   type: "MESSAGE",
                   senderName: data.senderName,
@@ -197,6 +201,7 @@ class Socket {
                 }),
                 queryHandler.createChat(data),
                 queryHandler.insertNotification({
+                  messageId: data.message._id,
                   receiverId: data.clientTwoId,
                   type: "MESSAGE",
                   senderName: data.message.senderName,
@@ -261,6 +266,10 @@ class Socket {
           } else {
             try {
               await Promise.all([queryHandler.deleteNotifications(data)]);
+              this.io.to(socket.id).emit(`delete-notifications-response`, {
+                error: false,
+                deletedAll: data.messageId ? true : false,
+              });
             } catch (error) {
               this.io.to(socket.id).emit(`delete-notifications-response`, {
                 error: true,

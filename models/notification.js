@@ -10,6 +10,7 @@ const notificationSchema = mongoose.Schema({
   target: { type: ObjectId, required: true },
   state: { type: String, enum: ["SENT", "DELIVERED", "READ"] },
   from: { type: String, required: true },
+  messageId: { type: ObjectId, required: false },
   avatarUrl: { type: String, required: false },
 });
 

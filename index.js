@@ -68,7 +68,7 @@ mongoose.set("useFindAndModify", false);
 
 mongoose
   .connect(
-    "mongodb+srv://zolotov:XfWW3FpepYqQNKbL@blanktechproject01-ht8w9.mongodb.net/ventures?retryWrites=true&w=majority",
+    process.env.DATABASE,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connected to MongoDB..."))

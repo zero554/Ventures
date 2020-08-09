@@ -44,6 +44,7 @@ router.post("/", async (req, res) => {
 
 router.post("/messages", async (req, res) => {
   let messageList;
+  let messageCount;
 
   try {
     messageList = await Chat.aggregate([
@@ -71,10 +72,22 @@ router.post("/messages", async (req, res) => {
       { $skip: 10 * req.body.offset },
       { $limit: 10 },
     ]);
+
+    messageCount = await Chat.aggregate([
+      {
+        $match: {
+          _id: ObjectId(req.body.chatId),
+        },
+      },
+      { $unwind: "$messages" },
+      { $count: "count" },
+    ]);
   } catch (error) {
+    console.log(error);
     res.status(400).send("Failed to fetch messages");
+    return;
   }
-  res.send(messageList);
+  res.send({ messageList, messageCount });
 });
 
 router.get("/", async (req, res) => {

@@ -117,7 +117,11 @@ class QueryHandler {
 
         const notificationCount = await Notification.aggregate([
           {
-            $match: { target: ObjectId(userId), state: "DELIVERED" },
+            $match: {
+              target: ObjectId(userId),
+              state: "DELIVERED",
+              type: "MESSAGE",
+            },
           },
           {
             $count: "unread",
@@ -131,19 +135,20 @@ class QueryHandler {
     });
   }
 
-  getChatList(clientOneId) {
+  getChatList({ userId, searchQuery }) {
     return new Promise(async (resolve, reject) => {
       try {
         const chatList = await Chat.aggregate([
           {
             $match: {
-              "clients._id": ObjectId(clientOneId),
+              "clients._id": ObjectId(userId, searchQuery),
             },
           },
           { $unwind: "$clients" },
           {
             $match: {
-              "clients._id": { $ne: ObjectId(clientOneId) },
+              "clients._id": { $ne: ObjectId(userId) },
+              "clients.businessName": new RegExp(searchQuery, "i"),
             },
           },
           {
@@ -158,7 +163,7 @@ class QueryHandler {
               messages: { $slice: ["$messages", -1] },
             },
           },
-        ]).sort({ createdAt: 1 });
+        ]).sort({ "messages.createdAt": -1 });
         resolve(chatList);
       } catch (error) {
         reject(error);
@@ -307,10 +312,12 @@ class QueryHandler {
     rating,
     senderAvatarUrl,
     overallRating,
+    messageId,
   }) {
     return new Promise(async (resolve, reject) => {
       try {
         const notification = await new Notification({
+          messageId,
           type,
           message: type === "MESSAGE" ? `New message.` : `${rating} rating.`,
           target: receiverId,
@@ -351,12 +358,23 @@ class QueryHandler {
     });
   }
 
-  deleteNotifications({ target }) {
+  deleteNotifications({ target, messageId }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const notifications = await Notification.deleteMany({ target });
+        const query = messageId
+          ? {
+              target,
+              messageId,
+            }
+          : { target };
+
+        const notifications = await Notification.deleteMany(query);
+
+        console.log(target, messageId);
+        // console.log(notifications);
         resolve(notifications);
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });

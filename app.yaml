@@ -2,6 +2,7 @@ runtime: nodejs10
 
 env_variables:
   BUCKET: venture_bucket
+  DATABASE: mongodb+srv://venturesAdmin:vvXSSWr5xD4wXzt2@cluster0.ttsfl.gcp.mongodb.net/Cluster0?retryWrites=true&w=majority
 
 handlers:
   - url: /.*
