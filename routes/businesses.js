@@ -7,6 +7,18 @@ const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
 const Joi = require("joi");
 const queryHandler = require("../chats/utils");
+const multer = require('multer');
+
+const upload = multer({
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, callback) {
+    if (!file.originalname.match(/\.(jpg|png|JPG|PNG|JPEG|jpeg)$/)) return callback(new Error('File format incorrect'));
+    callback(undefined, true);
+  }
+});
+
 
 router.get("/profile", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id }).select(
@@ -14,6 +26,14 @@ router.get("/profile", auth, async (req, res) => {
   );
 
   res.send(business);
+});
+
+router.get('/image', auth, async (req, res) => {
+  const business = await Business
+    .findOne({ _id: req.business._id });
+
+  res.set('Content-Type', 'image/jpg');
+  res.send(business.image);
 });
 
 router.get("/founders", auth, async (req, res) => {
@@ -85,6 +105,7 @@ router.post("/", async (req, res) => {
   business.avatarUrl = fileObj.url;
   await business.save();
 
+  // Ronewa wanted the token to be sent back as the response here.
   const token = business.generateAuthToken();
   res
     .header("x-auth-token", token)
@@ -97,6 +118,18 @@ router.post("/", async (req, res) => {
       ])
     );
 });
+
+router.post('/upload', auth, upload.single('upload'), async (req, res) => {
+  var business = await Business
+    .findById(req.business._id);
+
+  business.image = req.file.buffer;
+
+  await business.save();
+
+  res.send('File ' + req.file.originalname + ' uploaded');
+
+}, (err, req, res, next) => res.status(404).send({ error: err.message }));
 
 router.put("/", auth, async (req, res) => {
   const { error, value } = validateFounder(JSON.parse(req.body.data));
