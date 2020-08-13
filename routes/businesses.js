@@ -11,13 +11,12 @@ const multer = require("multer");
 
 const upload = multer({
   limits: {
-    fileSize: 1000000,
+    fileSize: 1000000
   },
   fileFilter(req, file, callback) {
-    if (!file.originalname.match(/\.(jpg|png|JPG|PNG|JPEG|jpeg)$/))
-      return callback(new Error("File format incorrect"));
+    if (!file.originalname.match(/\.(jpg|png|JPG|PNG|JPEG|jpeg|pdf|PDF|MP4|mp4|)$/)) return callback(new Error('File format incorrect'));
     callback(undefined, true);
-  },
+  }
 });
 
 router.get("/profile", auth, async (req, res) => {
@@ -102,7 +101,11 @@ router.post("/", async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
   business.password = await bcrypt.hash(business.password, salt);
-  business.week = "1";
+  business.week = 1;
+  business.rating = 0;
+  business.numRatings = 0;
+  business.weeks = [];
+  business.uploads = [];
   business.avatarUrl = fileObj.url;
   await business.save();
 
@@ -150,6 +153,21 @@ router.post(
   },
   (err, req, res, next) => res.status(404).send({ error: err.message })
 );
+
+router.post('/files/upload', auth, upload.single('upload'), async (req, res) => {
+  var business = await Business
+    .findById(req.business._id);
+
+  let file = req.file.buffer;
+  await Business
+    .updateOne({ _id: req.business._id }, { uploads: file });
+
+  await business.save();
+
+  res.send('File ' + req.file.originalname + ' uploaded');
+
+}, (err, req, res, next) => res.status(404).send({ error: err.message }));
+
 
 router.put("/", auth, async (req, res) => {
   const { error, value } = validateFounder(JSON.parse(req.body.data));
@@ -255,6 +273,15 @@ router.put("/updateWeek", auth, async (req, res) => {
   } catch (error) {
     res.send("There is no businesses with that business name");
   }
+});
+
+router.put('/updateWeeks', auth, async (req, res) => {
+  let object = _.pick(req.body, ['week', 'video', 'task', 'download']);
+  await Business
+    .updateOne({ _id: req.business._id }, { $push: { weeks: object } });
+
+  res.send("Update complete!");
+
 });
 
 router.put("/update/:item", auth, async (req, res) => {

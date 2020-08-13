@@ -29,12 +29,18 @@ const businessSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 5, maxlength: 1024 },
   businessMission: { type: String, minlength: 3, required: true },
   businessVision: { type: String, minlength: 3, required: true },
-  week: { type: String, required: false },
+  week: { type: Number, required: false },
+  weeks: { type: [Object], required: false },
   rating: { type: Number, required: false, default: 0 },
+  numRatings: { type: Number, required: false },
+  image: { type: Buffer, required: false },
+  uploads: { type: [Object], required: false },
   online: { type: String, required: false },
   socketId: { type: String, required: false, unique: false },
   avatarUrl: { type: String, required: false },
   numRatings: { type: Number, required: true, default: 0 },
+}, {
+  timestamps: true
 });
 
 businessSchema.methods.generateAuthToken = function () {
