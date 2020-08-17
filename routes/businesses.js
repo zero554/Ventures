@@ -65,17 +65,17 @@ router.get("/currentWeek", auth, async (req, res) => {
   res.send(business);
 });
 
-router.get('/industry/:value', async (req, res) => {
+router.get('/industry', async (req, res) => {
   const businesses = await Business
-    .find({ businessIndustry: req.params.value })
-    .sort({ businessName: 1 });
+    .find()
+    .sort({ businessIndustry: 1 });
 
   res.status(200).send(businesses);
 });
 
-router.get('/rating/:value', async (req, res) => {
+router.get('/rating', async (req, res) => {
   const businesses = await Business
-    .find({ rating: req.params.value })
+    .find()
     .sort({ rating: 1 });
 
   res.status(200).send(businesses);
@@ -84,7 +84,7 @@ router.get('/rating/:value', async (req, res) => {
 router.get('/age', async (req, res) => {
   const businesses = await Business
     .find()
-    .sort({ age: -1 });
+    .sort({ age: 1 });
 
   res.status(200).send(businesses);
 });
