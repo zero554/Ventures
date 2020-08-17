@@ -55,6 +55,7 @@ const auth = require("./routes/auth");
 const search = require("./routes/search");
 const allContent = require("./routes/AllContents");
 const chat = require("./routes/chats");
+const reset = require("./routes/reset");
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtprivatekey is not defined");
@@ -67,10 +68,10 @@ mongoose.set("useCreateIndex", true);
 mongoose.set("useFindAndModify", false);
 
 mongoose
-  .connect(
-    process.env.DATABASE,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.DATABASE, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB..."))
   .catch((err) => console.error("Could not connect to MongoDB..."));
 
@@ -81,6 +82,7 @@ app.use("/auth", auth);
 app.use("/search", search);
 app.use("/content", allContent);
 app.use("/chat", chat);
+app.use("/reset", reset);
 
 // Serve any static files
 app.use(express.static(path.join(__dirname, "build")));
