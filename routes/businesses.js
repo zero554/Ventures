@@ -81,6 +81,14 @@ router.get('/rating/:value', async (req, res) => {
   res.status(200).send(businesses);
 });
 
+router.get('/age', async (req, res) => {
+  const businesses = await Business
+    .find()
+    .sort({ age: -1 });
+
+  res.status(200).send(businesses);
+});
+
 
 router.post("/", async (req, res) => {
   const { data } = req.body;
