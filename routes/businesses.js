@@ -19,6 +19,15 @@ const upload = multer({
   }
 });
 
+router.get('/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Business with the given ID does not exist");
+
+  const business = await Business
+    .findById(req.params.ID);
+
+  res.status(200).send(business);
+});
+
 router.get("/profile", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id }).select(
     "-password"
@@ -55,6 +64,23 @@ router.get("/currentWeek", auth, async (req, res) => {
 
   res.send(business);
 });
+
+router.get('/industry/:value', async (req, res) => {
+  const businesses = await Business
+    .find({ businessIndustry: req.params.value })
+    .sort({ businessName: 1 });
+
+  res.status(200).send(businesses);
+});
+
+router.get('/rating/:value', async (req, res) => {
+  const businesses = await Business
+    .find({ rating: req.params.value })
+    .sort({ rating: 1 });
+
+  res.status(200).send(businesses);
+});
+
 
 router.post("/", async (req, res) => {
   const { data } = req.body;
