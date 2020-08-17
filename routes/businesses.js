@@ -76,7 +76,7 @@ router.get('/industry', async (req, res) => {
 router.get('/rating', async (req, res) => {
   const businesses = await Business
     .find()
-    .sort({ rating: 1 });
+    .sort({ rating: -1 });
 
   res.status(200).send(businesses);
 });
