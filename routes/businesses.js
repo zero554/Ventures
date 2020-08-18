@@ -49,13 +49,62 @@ router.get("/founders", auth, async (req, res) => {
   res.send(business.businessFounders);
 });
 
-router.get("/allbusinesses/:page", auth, async (req, res) => {
-  const businesses = await Business.find({ _id: { $ne: req.business._id } })
+router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
+    var filters = ["age", "industry", "rating"];
+    var value=req.params.value;
+    var businesses='';
+    if (value==='all'){
+
+         businesses = await Business.find({ _id: { $ne: req.business._id } })
     .limit(10)
     .skip(10 * req.params.page);
 
-  res.send(businesses);
+     res.send(businesses);
+   }
+   if(filters.includes(value)){
+
+      switch(value){
+         case 'industry':
+              businesses = await Business.find().sort({ businessIndustry: 1 });
+               res.status(200).send(businesses);
+         case 'rating':
+               businesses = await Business.find().sort({ rating: -1 });
+               res.status(200).send(businesses);
+         case 'age':
+              businesses = await Business.find().sort({ yearFound: -1 });
+              res.status(200).send(businesses);
+         default:
+              res.status(404).send('e')
+
+
+      }
+   }
+  try {
+     business = await Business.find({
+      $text: { $search: req.params.value },
+    })
+      .select("-password")
+      .limit(10)
+      .skip(10 * req.params.page);
+    if (!business)
+       res
+        .status(400)
+        .send([]);
+
+    res.send(business);
+  } catch (exception) {
+     res.send("error");
+  }
 });
+
+router.get("/currentWeek", auth, async (req, res) => {
+  const business = await Business.find({ _id: req.business._id })
+    .select(["businessName", "week"])
+    .select("-_id");
+
+  res.send(business);
+});
+
 
 router.get("/currentWeek", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id })
