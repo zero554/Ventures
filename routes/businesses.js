@@ -80,10 +80,8 @@ router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
       }
    }
   try {
-     business = await Business.find({
-      $text: { $search: req.params.value },
-    })
-      .select("-password")
+    business = await Business.find({ businessName:new RegExp(value,'i')})
+    .select("-password")
       .limit(10)
       .skip(10 * req.params.page);
     if (!business)
