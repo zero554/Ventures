@@ -50,6 +50,7 @@ router.get("/founders", auth, async (req, res) => {
 });
 
 router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
+      try {
     var filters = ["age", "industry", "rating"];
     var value=req.params.value;
     var businesses='';
@@ -59,29 +60,29 @@ router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
     .limit(10)
     .skip(10 * req.params.page);
 
-     res.send(businesses);
+     res.status(200).send(businesses);
    }
    if(filters.includes(value)){
 
       switch(value){
          case 'industry':
-              businesses = await Business.find().sort({ businessIndustry: 1 });
+              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ businessIndustry: 1 });
                res.status(200).send(businesses);
          case 'rating':
-               businesses = await Business.find().sort({ rating: -1 });
+               businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ rating: -1 });
                res.status(200).send(businesses);
          case 'age':
-              businesses = await Business.find().sort({ yearFound: -1 });
+              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ yearFound: -1 });
               res.status(200).send(businesses);
          default:
-              res.status(404).send('e')
+              res.status(404).send('error')
 
 
       }
    }
   try {
-    business = await Business.find({ businessName:new RegExp(value,'i')})
-    .select("-password")
+          business = await Business.find({ businessName:new RegExp(value,'i')})
+      .select("-password")
       .limit(10)
       .skip(10 * req.params.page);
     if (!business)
@@ -89,11 +90,16 @@ router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
         .status(400)
         .send([]);
 
-    res.send(business);
+    res.status(200).send(business);
   } catch (exception) {
-     res.send("error");
+     res.status(404).send("error");
   }
+}
+ catch(e){
+    res.status(404)
+ }
 });
+
 
 router.get("/currentWeek", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id })
