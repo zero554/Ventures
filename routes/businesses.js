@@ -109,16 +109,6 @@ router.get("/currentWeek", auth, async (req, res) => {
 
   res.send(business);
 });
-
-
-router.get("/currentWeek", auth, async (req, res) => {
-  const business = await Business.find({ _id: req.business._id })
-    .select(["businessName", "week"])
-    .select("-_id");
-
-  res.send(business);
-});
-
 router.get('/industry', async (req, res) => {
   const businesses = await Business
     .find()
