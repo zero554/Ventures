@@ -8,6 +8,7 @@ const auth = require("../middleware/auth");
 const Joi = require("joi");
 const queryHandler = require("../chats/utils");
 const multer = require("multer");
+const mongoose = require("mongoose");
 
 const upload = multer({
   limits: {
