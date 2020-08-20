@@ -12,24 +12,21 @@ const mongoose = require("mongoose");
 
 const upload = multer({
   limits: {
-    fileSize: 1000000
+    fileSize: 1000000,
   },
   fileFilter(req, file, callback) {
-    if (!file.originalname.match(/\.(jpg|png|JPG|PNG|JPEG|jpeg|pdf|PDF|MP4|mp4|)$/)) return callback(new Error('File format incorrect'));
+    if (
+      !file.originalname.match(
+        /\.(jpg|png|JPG|PNG|JPEG|jpeg|pdf|PDF|MP4|mp4|)$/
+      )
+    )
+      return callback(new Error("File format incorrect"));
     callback(undefined, true);
-  }
-});
-
-router.get('/:id', async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Business with the given ID does not exist");
-
-  const business = await Business
-    .findById(req.params.ID);
-
-  res.status(200).send(business);
+  },
 });
 
 router.get("/profile", auth, async (req, res) => {
+  console.log("req");
   const business = await Business.find({ _id: req.business._id }).select(
     "-password"
   );
@@ -51,56 +48,53 @@ router.get("/founders", auth, async (req, res) => {
 });
 
 router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
-      try {
-    var filters = ["age", "industry", "rating"];
-    var value=req.params.value;
-    var businesses='';
-    if (value==='all'){
-
-         businesses = await Business.find({ _id: { $ne: req.business._id } })
-    .limit(10)
-    .skip(10 * req.params.page);
-
-     res.status(200).send(businesses);
-   }
-   if(filters.includes(value)){
-
-      switch(value){
-         case 'industry':
-              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ businessIndustry: 1 });
-               res.status(200).send(businesses);
-         case 'rating':
-               businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ rating: -1 });
-               res.status(200).send(businesses);
-         case 'age':
-              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ yearFound: -1 });
-              res.status(200).send(businesses);
-         default:
-              res.status(404).send('error')
-
-
-      }
-   }
   try {
-          business = await Business.find({ businessName:new RegExp(value,'i')})
-      .select("-password")
-      .limit(10)
-      .skip(10 * req.params.page);
-    if (!business)
-       res
-        .status(400)
-        .send([]);
+    var filters = ["age", "industry", "rating"];
+    var value = req.params.value;
+    var businesses = "";
+    if (value === "all") {
+      businesses = await Business.find({ _id: { $ne: req.business._id } })
+        .limit(10)
+        .skip(10 * req.params.page);
 
-    res.status(200).send(business);
-  } catch (exception) {
-     res.status(404).send("error");
+      res.status(200).send(businesses);
+    }
+    if (filters.includes(value)) {
+      switch (value) {
+        case "industry":
+          businesses = await Business.find({
+            _id: { $ne: req.business._id },
+          }).sort({ businessIndustry: 1 });
+          res.status(200).send(businesses);
+        case "rating":
+          businesses = await Business.find({
+            _id: { $ne: req.business._id },
+          }).sort({ rating: -1 });
+          res.status(200).send(businesses);
+        case "age":
+          businesses = await Business.find({
+            _id: { $ne: req.business._id },
+          }).sort({ yearFound: -1 });
+          res.status(200).send(businesses);
+        default:
+          res.status(404).send("error");
+      }
+    }
+    try {
+      business = await Business.find({ businessName: new RegExp(value, "i") })
+        .select("-password")
+        .limit(10)
+        .skip(10 * req.params.page);
+      if (!business) res.status(400).send([]);
+
+      res.status(200).send(business);
+    } catch (exception) {
+      res.status(404).send("error");
+    }
+  } catch (e) {
+    res.status(404);
   }
-}
- catch(e){
-    res.status(404)
- }
 });
-
 
 router.get("/currentWeek", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id })
@@ -109,30 +103,32 @@ router.get("/currentWeek", auth, async (req, res) => {
 
   res.send(business);
 });
-router.get('/industry', async (req, res) => {
-  const businesses = await Business
-    .find()
-    .sort({ businessIndustry: 1 });
+router.get("/industry", async (req, res) => {
+  const businesses = await Business.find().sort({ businessIndustry: 1 });
 
   res.status(200).send(businesses);
 });
 
-router.get('/rating', async (req, res) => {
-  const businesses = await Business
-    .find()
-    .sort({ rating: -1 });
+router.get("/rating", async (req, res) => {
+  const businesses = await Business.find().sort({ rating: -1 });
 
   res.status(200).send(businesses);
 });
 
-router.get('/age', async (req, res) => {
-  const businesses = await Business
-    .find()
-    .sort({ age: 1 });
+router.get("/age", async (req, res) => {
+  const businesses = await Business.find().sort({ age: 1 });
 
   res.status(200).send(businesses);
 });
 
+router.get("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("Business with the given ID does not exist");
+
+  const business = await Business.findById(req.params.ID);
+
+  res.status(200).send(business);
+});
 
 router.post("/", async (req, res) => {
   const { data } = req.body;
@@ -232,20 +228,22 @@ router.post(
   (err, req, res, next) => res.status(404).send({ error: err.message })
 );
 
-router.post('/files/upload', auth, upload.single('upload'), async (req, res) => {
-  var business = await Business
-    .findById(req.business._id);
+router.post(
+  "/files/upload",
+  auth,
+  upload.single("upload"),
+  async (req, res) => {
+    var business = await Business.findById(req.business._id);
 
-  let file = req.file.buffer;
-  await Business
-    .updateOne({ _id: req.business._id }, { uploads: file });
+    let file = req.file.buffer;
+    await Business.updateOne({ _id: req.business._id }, { uploads: file });
 
-  await business.save();
+    await business.save();
 
-  res.send('File ' + req.file.originalname + ' uploaded');
-
-}, (err, req, res, next) => res.status(404).send({ error: err.message }));
-
+    res.send("File " + req.file.originalname + " uploaded");
+  },
+  (err, req, res, next) => res.status(404).send({ error: err.message })
+);
 
 router.put("/", auth, async (req, res) => {
   const { error, value } = validateFounder(JSON.parse(req.body.data));
@@ -353,13 +351,14 @@ router.put("/updateWeek", auth, async (req, res) => {
   }
 });
 
-router.put('/updateWeeks', auth, async (req, res) => {
-  let object = _.pick(req.body, ['week', 'video', 'task', 'download']);
-  await Business
-    .updateOne({ _id: req.business._id }, { $push: { weeks: object } });
+router.put("/updateWeeks", auth, async (req, res) => {
+  let object = _.pick(req.body, ["week", "video", "task", "download"]);
+  await Business.updateOne(
+    { _id: req.business._id },
+    { $push: { weeks: object } }
+  );
 
   res.send("Update complete!");
-
 });
 
 router.put("/update/:item", auth, async (req, res) => {
