@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.b1cd85df.chunk.css",
-    "main.js": "/static/js/main.f8dc096f.chunk.js",
-    "main.js.map": "/static/js/main.f8dc096f.chunk.js.map",
+    "main.css": "/static/css/main.c8580830.chunk.css",
+    "main.js": "/static/js/main.3e552b8d.chunk.js",
+    "main.js.map": "/static/js/main.3e552b8d.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.2b26198c.js",
     "runtime-main.js.map": "/static/js/runtime-main.2b26198c.js.map",
     "static/css/2.c2bc211b.chunk.css": "/static/css/2.c2bc211b.chunk.css",
-    "static/js/2.a04cc848.chunk.js": "/static/js/2.a04cc848.chunk.js",
-    "static/js/2.a04cc848.chunk.js.map": "/static/js/2.a04cc848.chunk.js.map",
+    "static/js/2.f854daf7.chunk.js": "/static/js/2.f854daf7.chunk.js",
+    "static/js/2.f854daf7.chunk.js.map": "/static/js/2.f854daf7.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.c63af214bad46fc2817731828d89301c.js": "/precache-manifest.c63af214bad46fc2817731828d89301c.js",
+    "precache-manifest.d9f93ec8b3f59becc50fbad4d6bfb9e9.js": "/precache-manifest.d9f93ec8b3f59becc50fbad4d6bfb9e9.js",
     "service-worker.js": "/service-worker.js",
     "static/css/2.c2bc211b.chunk.css.map": "/static/css/2.c2bc211b.chunk.css.map",
-    "static/css/main.b1cd85df.chunk.css.map": "/static/css/main.b1cd85df.chunk.css.map",
-    "static/js/2.a04cc848.chunk.js.LICENSE.txt": "/static/js/2.a04cc848.chunk.js.LICENSE.txt",
+    "static/css/main.c8580830.chunk.css.map": "/static/css/main.c8580830.chunk.css.map",
+    "static/js/2.f854daf7.chunk.js.LICENSE.txt": "/static/js/2.f854daf7.chunk.js.LICENSE.txt",
     "static/media/accelerate.svg": "/static/media/accelerate.a638ab60.svg",
-    "static/media/signup.css": "/static/media/background.3759a2f6.jpg",
+    "static/media/detail.css": "/static/media/background.3759a2f6.jpg",
     "static/media/page.css": "/static/media/background.8d755fa4.png",
     "static/media/bag.svg": "/static/media/bag.f8c9e965.svg",
     "static/media/checkbox.svg": "/static/media/checkbox.9ec91da8.svg",
@@ -29,8 +29,8 @@
   "entrypoints": [
     "static/js/runtime-main.2b26198c.js",
     "static/css/2.c2bc211b.chunk.css",
-    "static/js/2.a04cc848.chunk.js",
-    "static/css/main.b1cd85df.chunk.css",
-    "static/js/main.f8dc096f.chunk.js"
+    "static/js/2.f854daf7.chunk.js",
+    "static/css/main.c8580830.chunk.css",
+    "static/js/main.3e552b8d.chunk.js"
   ]
 }
