@@ -8,6 +8,7 @@ const auth = require("../middleware/auth");
 const Joi = require("joi");
 const queryHandler = require("../chats/utils");
 const multer = require("multer");
+const mongoose = require("mongoose");
 
 const upload = multer({
   limits: {
@@ -49,13 +50,57 @@ router.get("/founders", auth, async (req, res) => {
   res.send(business.businessFounders);
 });
 
-router.get("/allbusinesses/:page", auth, async (req, res) => {
-  const businesses = await Business.find({ _id: { $ne: req.business._id } })
+router.get("/allbusinesses/:value/:page", auth, async (req, res) => {
+      try {
+    var filters = ["age", "industry", "rating"];
+    var value=req.params.value;
+    var businesses='';
+    if (value==='all'){
+
+         businesses = await Business.find({ _id: { $ne: req.business._id } })
     .limit(10)
     .skip(10 * req.params.page);
 
-  res.send(businesses);
+     res.status(200).send(businesses);
+   }
+   if(filters.includes(value)){
+
+      switch(value){
+         case 'industry':
+              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ businessIndustry: 1 });
+               res.status(200).send(businesses);
+         case 'rating':
+               businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ rating: -1 });
+               res.status(200).send(businesses);
+         case 'age':
+              businesses = await Business.find({_id: { $ne: req.business._id }}).sort({ yearFound: -1 });
+              res.status(200).send(businesses);
+         default:
+              res.status(404).send('error')
+
+
+      }
+   }
+  try {
+          business = await Business.find({ businessName:new RegExp(value,'i')})
+      .select("-password")
+      .limit(10)
+      .skip(10 * req.params.page);
+    if (!business)
+       res
+        .status(400)
+        .send([]);
+
+    res.status(200).send(business);
+  } catch (exception) {
+     res.status(404).send("error");
+  }
+}
+ catch(e){
+    res.status(404)
+ }
 });
+
 
 router.get("/currentWeek", auth, async (req, res) => {
   const business = await Business.find({ _id: req.business._id })
@@ -64,7 +109,6 @@ router.get("/currentWeek", auth, async (req, res) => {
 
   res.send(business);
 });
-
 router.get('/industry', async (req, res) => {
   const businesses = await Business
     .find()
