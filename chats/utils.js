@@ -337,7 +337,10 @@ class QueryHandler {
     return new Promise(async (resolve, reject) => {
       try {
         await Chat.updateOne(
-          { _id: messagePacket.chatId, "messages._id": messagePacket },
+          {
+            _id: ObjectId(messagePacket.chatId),
+            "messages._id": messagePacket._id,
+          },
           {
             $set: { "messages.$.state": messagePacket.state },
           }
@@ -370,7 +373,6 @@ class QueryHandler {
 
         const notifications = await Notification.deleteMany(query);
 
-        console.log(target, messageId);
         // console.log(notifications);
         resolve(notifications);
       } catch (error) {
