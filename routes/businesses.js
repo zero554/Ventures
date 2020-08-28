@@ -125,7 +125,7 @@ router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Business with the given ID does not exist");
 
-  const business = await Business.findById(req.params.ID);
+  const business = await Business.findById(req.params.id);
 
   res.status(200).send(business);
 });
