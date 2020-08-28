@@ -180,7 +180,7 @@ router.post("/", async (req, res) => {
   business.numRatings = 0;
   business.weeks = [];
   business.uploads = [];
-  business.avatarUrl = fileObj.url;
+  if (fileObj) business.avatarUrl = fileObj.url;
   await business.save();
 
   // Ronewa wanted the token to be sent back as the response here.
